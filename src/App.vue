@@ -5,13 +5,17 @@
         <router-link to="/">Logo</router-link>
       </div>
       <div class="navigation">
-        <router-link to="/representatives">Representatives</router-link>
-        <router-link to="/cities">Cities</router-link>
-        <router-link to="/areas">Areas</router-link>
-        <router-link to="/about-us">About Us</router-link>
-        <router-link to="/contact-us">Contact Us</router-link>
-        <router-link to="/bm">_bm_</router-link>
-        <router-link to="/acc">_acc_</router-link>
+        <div class="menu">
+          <HeaderButton link="/representatives" icon="representatives">Representatives</HeaderButton>
+          <HeaderButton link="/cities" icon="cities">Cities</HeaderButton>
+          <HeaderButton link="/areas" icon="areas">Areas</HeaderButton>
+          <HeaderButton link="/about-us" icon="about-us">About Us</HeaderButton>
+          <HeaderButton link="/contact-us" icon="contact-us">Contact Us</HeaderButton>
+        </div>
+        <div class="account">
+          <HeaderButton link="/" icon="bookmark-l">5</HeaderButton>
+          <HeaderButton link="/" icon="user">Andreea Cora</HeaderButton>
+        </div>
       </div>
     </header>
     <router-view class="page" />
@@ -22,12 +26,19 @@
 </template>
 
 <script>
-export default { };
+import HeaderButton from '@/components/HeaderButton.vue';
+
+export default {
+  components: {
+    HeaderButton,
+  },
+};
 </script>
 
 <style lang="scss">
 @import '@/scss/_normalize.scss';
 @import '@/scss/_colours.scss';
+@import '@/scss/_icons.scss';
 
 html, body, #app { min-height: 100vh; }
 #app {
@@ -48,12 +59,13 @@ a {
   color: $text-blue;
 }
 
-#nav {
-  padding: 30px;
-  a {
-    font-weight: bold;
-    color: lighten($text-blue, 5%);
-    &.router-link-exact-active { color: #42b983; }
-  }
+.navigation {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 10%;
+  background-color: $bg-blue-2;
+  border: 1px solid $border-blue;
+  border-left: 0;
+  border-right: 0;
 }
 </style>
