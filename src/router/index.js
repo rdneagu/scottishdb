@@ -16,6 +16,26 @@ const routes = [
     component: () => import('../views/Representatives.vue'),
   },
   {
+    path: '/cities',
+    name: 'cities',
+    component: () => import('../views/Cities.vue'),
+  },
+  {
+    path: '/areas',
+    name: 'areas',
+    component: () => import('../views/Areas.vue'),
+  },
+  {
+    path: '/about-us',
+    name: 'about-us',
+    component: () => import('../views/AboutUs.vue'),
+  },
+  {
+    path: '/contact-us',
+    name: 'contact-us',
+    component: () => import('../views/ContactUs.vue'),
+  },
+  {
     path: '*',
     name: '404',
     component: () => import('../views/404.vue'),

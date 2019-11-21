@@ -1,9 +1,10 @@
 <template>
   <div id="app">
     <header>
-      <div class="logo">
-        <router-link to="/">Logo</router-link>
-      </div>
+      <router-link to="/" class="logo">
+        <span class="logo-text">Scottish DB</span>
+        <i class="icon icon-database"></i>
+      </router-link>
       <div class="navigation">
         <div class="menu">
           <HeaderButton link="/representatives" icon="representatives">Representatives</HeaderButton>
@@ -67,5 +68,23 @@ a {
   border: 1px solid $border-blue;
   border-left: 0;
   border-right: 0;
+}
+footer {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  font-size: 2em;
+  padding: 10px 1%;
+  margin: 0 10%;
+  .icon {
+    margin-left:10px;
+  }
+  .logo-text{
+    font-weight:500;
+  }
 }
 </style>
