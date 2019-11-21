@@ -17,6 +17,15 @@
         <OpaqueButton id="advanced-button" icon="cog">Advanced</OpaqueButton>
         <BorderedButton id="search-button" icon="search">Search</BorderedButton>
       </div>
+      <div class="representatives">
+        <span>Some of our representatives</span>
+        <div class="representatives-wrapper">
+          <Representative area="G20">Two words</Representative>
+          <Representative area="G2">Two words</Representative>
+          <Representative area="G5">Two words</Representative>
+          <Representative area="G12">Two words</Representative>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -24,9 +33,11 @@
 <script>
 import OpaqueButton from '@/components/OpaqueButton.vue';
 import BorderedButton from '@/components/BorderedButton.vue';
+import Representative from '@/components/Representative.vue';
 
 export default {
   components: {
+    Representative,
     OpaqueButton,
     BorderedButton,
   },
@@ -63,96 +74,108 @@ export default {
 .home {
   display: flex;
   flex-direction: column;
-}
-.top-wrapper {
-  flex: 1;
-  position: relative;
-  .bg-city {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url('../assets/images/wallpaper.jpg');
-    background-size: cover;
-    background-position: center;
-    opacity: 0.5;
-    &:after {
-      content: "";
+  .top-wrapper {
+    flex: 1;
+    position: relative;
+    .bg-city {
       position: absolute;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(rgba(black, 0) 0%, rgba(black, 0.8) 60%);
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url('../assets/images/wallpaper.jpg');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.5;
+      &:after {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(rgba(black, 0) 0%, rgba(black, 0.8) 60%);
+      }
     }
-  }
-  .heading {
-    position: relative;
-    font-size: 3em;
-    font-weight: 300;
-    text-align: center;
-    margin: 35px 0;
-  }
-  .postcode-wrapper {
-    position: relative;
-    padding: 10px 20%;
-    display: flex;
-    text-align: center;
-    justify-content: center;
-    .input-wrapper {
-      display: flex;
-      flex-direction: column;
-      border: 1px solid $text-blue;
-      border-radius: 8px;
+    .heading {
+      position: relative;
+      font-size: 3em;
+      font-weight: 300;
       text-align: center;
-      &.postcode {
-        width: 70%;
-        border-top-right-radius: 0px;
-        border-bottom-right-radius: 0px;
-      }
-      &.distance {
-        width: 25%;
-        border-top-left-radius: 0px;
-        border-bottom-left-radius: 0px;
-        border-left: none;
-      }
-      input {
-        font-size: 3em;
-        background: rgba($border-blue, 0.2);
-        border: none;
-        outline: none;
-        box-shadow: none;
-        color: $text-blue;
+      margin: 35px 0;
+    }
+    .postcode-wrapper {
+      position: relative;
+      padding: 10px 20%;
+      display: flex;
+      text-align: center;
+      justify-content: center;
+      .input-wrapper {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid $text-blue;
+        border-radius: 8px;
         text-align: center;
-        height: 70px;
-      }
-      &.distance input{
-        font-size: 2em;
-        font-weight: 500;
-      }
-      label {
-        font-size: 0.9em;
-        padding: 2px 0;
-        font-weight: 500;
+        &.postcode {
+          width: 70%;
+          border-top-right-radius: 0px;
+          border-bottom-right-radius: 0px;
+        }
+        &.distance {
+          width: 25%;
+          border-top-left-radius: 0px;
+          border-bottom-left-radius: 0px;
+          border-left: none;
+        }
+        input {
+          font-size: 3em;
+          background: rgba($border-blue, 0.2);
+          border: none;
+          outline: none;
+          box-shadow: none;
+          color: $text-blue;
+          text-align: center;
+          height: 70px;
+        }
+        &.distance input{
+          font-size: 2em;
+          font-weight: 500;
+        }
+        label {
+          font-size: 0.9em;
+          padding: 2px 0;
+          font-weight: 500;
+        }
       }
     }
-  }
-  .control-wrapper{
-    position: relative;
-    margin: 10px 20%;
-    #search-button {
-      position: absolute;
-      right: 30px;
-    }
-    #advanced-button {
-      position: absolute;
-      padding: 15px 0;
-      left: 30px;
-      .icon {
-        transform: rotate(0deg);
-        transition: transform .2s ease;
+    .control-wrapper{
+      position: relative;
+      margin: 10px 20%;
+      #search-button {
+        position: absolute;
+        right: 30px;
       }
-      &:hover .icon {
-        transform: rotate(90deg);
+      #advanced-button {
+        position: absolute;
+        padding: 15px 0;
+        left: 30px;
+        .icon {
+          transform: rotate(0deg);
+          transition: transform .2s ease;
+        }
+        &:hover .icon {
+          transform: rotate(90deg);
+        }
+      }
+    }
+    .representatives {
+      position: relative;
+      margin-top: 100px;
+      border: 1px solid $border-blue;
+      margin-left: 2%; margin-right: 2%;
+      padding: 5px;
+      background-color: rgba($bg-blue, .4);
+      .representatives-wrapper {
+        display: flex;
+        flex-flow: row wrap;
       }
     }
   }

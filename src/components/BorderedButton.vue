@@ -1,5 +1,5 @@
 <template>
-  <div class="bordered-button">
+  <div class="bordered-button" :class="[ size ]">
       <span class="text"><slot></slot>
       </span>
     <i class="icon" :class="[ getIcon ]"></i>
@@ -8,7 +8,7 @@
 
 <script>
 export default {
-  props: ['link', 'icon'],
+  props: ['link', 'icon', 'size'],
   computed: {
     getIcon() {
       return `icon-${this.icon}`;
@@ -39,6 +39,10 @@ export default {
   &:hover {
     color: lighten($text-blue, 30%);
     background: lighten($bg-blue, 3%);
+  }
+  &.sm{
+    padding: 5px 15px;
+    font-size: 0.9em;
   }
 }
 </style>
