@@ -11,9 +11,9 @@ const routes = [
     component: Home,
   },
   {
-    path: '/representatives',
-    name: 'representatives',
-    component: () => import('../views/Representatives.vue'),
+    path: '/constituencies',
+    name: 'constituencies',
+    component: () => import('../views/Constituencies.vue'),
   },
   {
     path: '/cities',
