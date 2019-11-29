@@ -28,15 +28,8 @@ export default {
   margin: 0 10px;
   border-radius: 2px;
   transition: color .2s ease, background-color .2s ease;
-  .icon {
-    margin-right: 8px;
-  }
-
-  &:hover {
-    color: lighten($text-blue, 30%);
-  }
-  &.router-link-exact-active {
-    background-color: rgba($border-blue, .2);
-  }
+  .icon { margin-right: 8px; }
+  &:hover { color: lighten($text-blue, 30%); }
+  &.router-link-active { background-color: rgba($border-blue, .2); }
 }
 </style>

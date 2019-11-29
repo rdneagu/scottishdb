@@ -1,6 +1,6 @@
 <template>
   <div class="constituency" :class="[ size ]">
-    <label class="area">{{ area }}</label>
+    <label class="zone">{{ zone }}</label>
     <div class="body">
       <div class="info">
         <slot></slot>
@@ -22,7 +22,7 @@ export default {
     OpaqueButton,
     BorderedButton,
   },
-  props: ['area', 'size'],
+  props: ['zone', 'size'],
 };
 </script>
 
@@ -37,12 +37,12 @@ export default {
   &.sm {
     height: 220px;
   }
-  .area {
+  .zone {
     display: block;
     border-bottom: 1px solid $border-blue;
-    padding: 2px;
+    padding: 4px;
     background-color: $bg-blue;
-    font-size: 0.8em;
+    font-size: 1em;
     text-align: center;
   }
   .body {
@@ -55,6 +55,7 @@ export default {
     .info {
       flex: 1;
       flex-shrink: 0;
+      font-size: 1.2em;
     }
     .more-wrapper {
       display: flex;

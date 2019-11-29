@@ -21,9 +21,9 @@ const routes = [
     component: () => import('../views/Cities.vue'),
   },
   {
-    path: '/areas',
-    name: 'areas',
-    component: () => import('../views/Areas.vue'),
+    path: '/zones',
+    name: 'zones',
+    component: () => import('../views/Zones.vue'),
   },
   {
     path: '/about-us',

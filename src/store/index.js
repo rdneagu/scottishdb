@@ -12,7 +12,7 @@ export default new Vuex.Store({
     },
   },
   mutations: {
-    loadingStart(state, payload) {
+    loadingStart(state, payload = {}) {
       state.loading.ready = false;
       state.loading.error = false;
       state.loading.message = payload.message || '';
@@ -20,7 +20,7 @@ export default new Vuex.Store({
     loadingMessage(state, payload) {
       state.loading.message = payload.message;
     },
-    loadingFinish(state, payload) {
+    loadingFinish(state, payload = {}) {
       if (!payload.status) {
         state.loading.error = true;
         state.loading.message = payload.message || 'Error loading data';

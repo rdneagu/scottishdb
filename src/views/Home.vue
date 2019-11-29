@@ -20,11 +20,11 @@
           <BorderedButton id="search-button" icon="search">Search</BorderedButton>
         </div>
         <div class="constituencies">
-          <label class="constituencies-title">Some of our constituencies</label>
+          <label class="constituencies-title">Some of Scotland's constituencies</label>
           <div class="constituencies-wrapper">
             <div class="constituencies-group-by-2" v-for="(group, index) in spotlight" :key="index">
-              <Constituency size="sm" :area="group[0].Area">{{ group[0].Name }}</Constituency>
-              <Constituency size="sm" :area="group[1].Area">{{ group[1].Name }}</Constituency>
+              <Constituency size="sm" :zone="group[0].Area">{{ group[0].Name }}</Constituency>
+              <Constituency size="sm" :zone="group[1].Area">{{ group[1].Name }}</Constituency>
             </div>
           </div>
         </div>
@@ -45,7 +45,7 @@
         </div>
         <div class="brief-about-us">
           <aside class="panel-info">
-            <i class="icon icon-contact-us"></i>
+            <i class="icon icon-info"></i>
             <div class="text">
               Find information about employment, schooling, health and social care within your area
             </div>
@@ -79,76 +79,63 @@ export default {
     BorderedButton,
     Constituency,
   },
-  async created() {
-    // Start the loading process
-    // Load cities API and parse the result
-    this.$store.commit('loadingStart', { message: 'Loading cities' });
-    const addresses = await axios.get('https://data.parliament.scot/api/addresses');
-    this.cities = _.chain(addresses.data)
-      .map((a) => {
-        a.Region = (_.isEmpty(a.Region) ? a.Town : a.Region); // eslint-disable-line
-        return a;
-      })
-      .filter(a => a.AddressTypeID === 2)
-      .uniqBy('Region')
-      .value();
-    // Load constituencies API
-    this.$store.commit('loadingMessage', { message: 'Loading constituencies' });
-    const constituencies = await axios.get('https://data.parliament.scot/api/constituencies');
-    this.constituencies = constituencies.data;
-    // Add 4 random samples from the constituencies data and group them by 2
-    _.chain(constituencies.data)
-      .sampleSize(4)
-      .forEach((val, id) => this.spotlight[Math.floor(id / 2)].push(val))
-      .commit();
-    // Load members elected and regions
-    const mecs = await axios.get('https://data.parliament.scot/api/MemberElectionConstituencyStatuses');
-    const regions = await axios.get('https://data.parliament.scot/api/regions');
-    _.forEach(this.spotlight, (group) => {
-      _.forEach(group, (element) => {
-        const member = _.chain(mecs.data)
-          .filter(m => m.ConstituencyID === element.ID)
-          .orderBy('ValidFromDate', 'desc')
-          .head()
-          .value();
-        const region = _.chain(regions.data)
-          .filter(r => _.find(constituencies.data, c => c.ID === member.ConstituencyID && c.RegionID === r.ID))
-          .head()
-          .get('Name')
-          .value();
-        /* if (!_.isEmpty(member.ValidUntilDate)) {
-          region = _.chain(regions.data)
-            .filter(r => _.find(constituencies.data, c => c.ID === member.ConstituencyID && c.RegionID === r.ID))
-            .head()
-            .get('Name')
-            .value();
-        } else {
-          region = _.chain(addresses.data)
-            .filter(a => a.PersonID === member.PersonID && a.AddressTypeID === 2)
-            .head()
-            .get('Region')
-            .value();
-        } */
-        element.Area = region; // eslint-disable-line
-      });
-    });
-    /* const filteredMecs = _.chain(mecs.data) // eslint-disable-line
-      .orderBy('ValidFromDate', 'desc')
-      .filter(m => _.isEmpty(m.ValidUntilDate))
-      .uniqBy('ConstituencyID')
-      .value();
-    console.log(filteredMecs); */
-    // End the loading process
-    this.$store.commit('loadingFinish', { status: 1 });
-  },
   data() {
     return {
       cities: [],
       constituencies: [],
-      spotlight: [[], []],
+      spotlight: [],
       distance: 0,
       distanceIsActive: false,
     };
+  },
+  async created() {
+    // Start the loading process
+    // Load cities API and parse the result
+    this.$store.commit('loadingStart');
+    if (_.isEmpty(this.cities)) {
+      this.$store.commit('loadingMessage', { message: 'Loading cities' });
+      const addresses = await axios.get('https://data.parliament.scot/api/addresses');
+      this.cities = _.chain(addresses.data)
+        .filter(a => a.AddressTypeID === 2)
+        .forEach(a => a.Region = (_.isEmpty(a.Region) ? a.Town : a.Region)) // eslint-disable-line        
+        .uniqBy('Region')
+        .value();
+    }
+    if (_.isEmpty(this.constituencies)) {
+      // Load constituencies API
+      this.$store.commit('loadingMessage', { message: 'Loading constituencies' });
+      const constituencies = await axios.get('https://data.parliament.scot/api/constituencies');
+      this.constituencies = constituencies.data;
+    }
+    if (_.isEmpty(this.spotlight[0])) {
+      const [constituencies] = [this.constituencies];
+      // Add 4 random samples from the constituencies data and group them by 2
+      this.spotlight = _.chain(constituencies)
+        .sampleSize(4)
+        .chunk(2)
+        .value();
+      console.log(this.spotlight);
+      // Load members elected and regions
+      const mecs = await axios.get('https://data.parliament.scot/api/MemberElectionConstituencyStatuses');
+      const regions = await axios.get('https://data.parliament.scot/api/regions');
+      _.forEach(this.spotlight, (group) => {
+        _.forEach(group, (element) => {
+          const member = _.chain(mecs.data)
+            .filter(m => m.ConstituencyID === element.ID)
+            .orderBy('ValidFromDate', 'desc')
+            .head()
+            .value();
+          const region = _.chain(regions.data)
+            .filter(r => _.find(constituencies, c => c.ID === member.ConstituencyID && c.RegionID === r.ID))
+            .head()
+            .get('Name')
+            .value();
+          element.Area = region; // eslint-disable-line
+        });
+      });
+    }
+    // End the loading process
+    this.$store.commit('loadingFinish', { status: 1 });
   },
   methods: {
     blurDistance() {
@@ -187,84 +174,9 @@ export default {
 .home {
   display: flex;
   flex-direction: column;
-  .site-map {
-    background-color: lighten($bg-blue, 4%);
-    height: 250px;
-  }
-  .bottom-wrapper {
-    position: relative;
-    padding: 20px 60px;
-    border-top: 1px solid $border-blue;
-    .brief-stats {
-      display: flex;
-      justify-content: space-between;
-      .stats-count > * {
-        display: inline-block;
-        padding: 0 10px;
-        font-size: 1.2em;
-        &.constituencies-count {
-          border-left: 2px solid lighten($text-blue, 10%);
-        }
-        .emphasize {
-          color: lighten($text-blue, 10%);
-          font-weight: 700;
-        }
-      }
-    }
-    .brief-about-us {
-      display: flex;
-      flex-flow: row wrap;
-      margin: 20px 0;
-      aside {
-        min-width: 450px;
-        flex: 1;
-        display: flex;
-        align-items: center;
-        padding: 25px;
-        margin: 40px;
-        border-radius: 8px;
-        background-color: lighten($bg-blue-2, 5%);
-        .icon {
-          font-size: 10em;
-        }
-        .text {
-          margin: 0 50px;
-          font-size: 1.8em;
-          font-weight: 300;
-        }
-      }
-    }
-  }
   .top-wrapper {
-    position: relative;
-    padding: 35px 60px;
-    .bg-city {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-image: url('../assets/images/wallpaper.jpg');
-      background-size: cover;
-      background-position: center;
-      opacity: 0.5;
-      &:after {
-        content: "";
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background: radial-gradient(rgba(black, 0) 0%, rgba(black, 0.8) 60%);
-      }
-    }
-    .heading {
-      position: relative;
-      font-size: 3em;
-      font-weight: 300;
-      text-align: center;
-    }
     .postcode-wrapper {
-      position: relative;
-      padding: 10px 15%;
+      margin: 10px 15%;
       display: flex;
       text-align: center;
       justify-content: center;
@@ -307,16 +219,14 @@ export default {
       }
     }
     .control-wrapper {
+      display: flex;
+      flex-flow: row-wrap;
+      justify-content: space-between;
+      align-items: center;
       position: relative;
-      margin: 10px 15%;
-      #search-button {
-        position: absolute;
-        right: 30px;
-      }
+      margin: 20px 15%;
+      padding: 0 2%;
       #advanced-button {
-        position: absolute;
-        padding: 15px 0;
-        left: 30px;
         .icon {
           transform: rotate(0deg);
           transition: transform .2s ease;
@@ -327,15 +237,13 @@ export default {
       }
     }
     .constituencies {
-      position: relative;
-      margin: 100px 0 0 0;
       padding: 5px;
       border: 1px solid $border-blue;
       border-radius: 4px;
       background-color: rgba($bg-blue, .4);
       .constituencies-title {
         display: inline-block;
-        padding: 2px 0;
+        padding: 2px 4px;
       }
       .constituencies-wrapper {
         display: flex;
@@ -353,6 +261,53 @@ export default {
         }
       }
     }
+  }
+  .bottom-wrapper {
+    padding: 20px 60px;
+    border-top: 1px solid $border-blue;
+    .brief-stats {
+      display: flex;
+      justify-content: space-between;
+      .stats-count > * {
+        display: inline-block;
+        padding: 0 10px;
+        font-size: 1.2em;
+        &.constituencies-count {
+          border-left: 2px solid lighten($text-blue, 10%);
+        }
+        .emphasize {
+          color: lighten($text-blue, 10%);
+          font-weight: 700;
+        }
+      }
+    }
+    .brief-about-us {
+      display: flex;
+      flex-flow: row wrap;
+      margin: 20px 0;
+      aside {
+        min-width: 450px;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        padding: 25px;
+        margin: 40px;
+        border-radius: 8px;
+        background-color: lighten($bg-blue-2, 5%);
+        .icon {
+          font-size: 10em;
+        }
+        .text {
+          margin: 0 50px;
+          font-size: 1.8em;
+          font-weight: 300;
+        }
+      }
+    }
+  }
+  .site-map {
+    background-color: lighten($bg-blue, 4%);
+    height: 250px;
   }
 }
 </style>
