@@ -1,5 +1,5 @@
 module.exports = {
-  publicPath: './',
+  publicPath: '/webtech/',
   devServer: {
     proxy: {
       '^/api/': {

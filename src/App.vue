@@ -7,11 +7,11 @@
       </router-link>
       <div v-if="isHomePage" class="navigation">
         <div class="menu">
-          <HeaderButton href="/constituencies" icon="constituencies">Constituencies</HeaderButton>
-          <HeaderButton href="/cities" icon="cities">Cities</HeaderButton>
-          <HeaderButton href="/msp" icon="zones">MSP</HeaderButton>
-          <HeaderButton href="/about-us" icon="about-us">About Us</HeaderButton>
-          <HeaderButton href="/contact-us" icon="contact-us">Contact Us</HeaderButton>
+          <HeaderButton v-bind="menuDropdown[0]">{{ menuDropdown[0].text }}</HeaderButton>
+          <HeaderButton v-bind="menuDropdown[1]">{{ menuDropdown[1].text }}</HeaderButton>
+          <HeaderButton v-bind="menuDropdown[2]">{{ menuDropdown[2].text }}</HeaderButton>
+          <HeaderButton v-bind="menuDropdown[3]">{{ menuDropdown[3].text }}</HeaderButton>
+          <HeaderButton v-bind="menuDropdown[4]">{{ menuDropdown[4].text }}</HeaderButton>
         </div>
       </div>
       <div v-else class="navigation">
@@ -53,11 +53,11 @@ export default {
   data() {
     return {
       menuDropdown: [
-        { text: 'Constituencies', icon: 'constituencies', href: { path: 'constituencies' } },
-        { text: 'Cities', icon: 'cities', href: { path: 'cities' } },
-        { text: 'Zones', icon: 'zones', href: { path: 'zones' } },
-        { text: 'About Us', icon: 'about-us', href: { path: 'about-us' } },
-        { text: 'Contact Us', icon: 'contact-us', href: { path: 'contact-us' } },
+        { text: 'Constituencies', icon: 'constituencies', href: { name: 'constituencies' } },
+        { text: 'Cities', icon: 'cities', href: { name: 'cities' } },
+        { text: 'Zones', icon: 'zones', href: { name: 'zones' } },
+        { text: 'About Us', icon: 'about-us', href: { name: 'about-us' } },
+        { text: 'Contact Us', icon: 'contact-us', href: { name: 'contact-us' } },
       ],
     };
   },
