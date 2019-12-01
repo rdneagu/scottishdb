@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+// import axios from 'axios';
 import _ from 'lodash';
 
 import Loading from '@/components/Loading.vue';
@@ -82,22 +82,8 @@ export default {
       this.vAlphabetObserver.unobserve(this.$refs.hAlphabet);
     }
   },
-  async created() {
-    // Start the loading process
-    // Load cities API and parse the result
-    this.$store.commit('loadingStart');
-    if (_.isEmpty(this.cities)) {
-      this.$store.commit('loadingMessage', { message: 'Loading cities' });
-      const addresses = await axios.get('https://data.parliament.scot/api/addresses');
-      this.cities = _.chain(addresses.data)
-        .filter(a => a.AddressTypeID === 2)
-        .forEach(a => a.Region = (_.isEmpty(a.Region) ? a.Town : a.Region)) // eslint-disable-line
-        .uniqBy('Region')
-        .orderBy('Region', 'asc')
-        .value();
-    }
-    // End the loading process
-    this.$store.commit('loadingFinish', { status: 1 });
+  async mounted() {
+    await this.loadInReadyState();
   },
   computed: {
     getFiltered() {
@@ -131,6 +117,20 @@ export default {
     },
   },
   methods: {
+    async loadInReadyState() {
+      if (!this.$store.getters.isLoadingInReadyState) { return; }
+      await this.load();
+    },
+    async load() {
+      if (this.cities.length !== 0) { return; }
+      // Start the loading process
+      // Load cities API and parse the result
+      this.$store.commit('loadingStart');
+      this.$store.commit('loadingMessage', { message: 'Loading cities' });
+      this.cities = this.$store.getters.getCities;
+      // End the loading process
+      this.$store.commit('loadingSuccess');
+    },
     changePage(page) {
       if (page >= this.getFiltered.length) {
         this.page = 0;
@@ -156,7 +156,10 @@ export default {
     },
   },
   watch: {
-    '$store.state.loading.ready'(to) { // eslint-disable-line
+    '$store.state.loading.ready': async function (to, from) {
+      if (to === true && from === false) {
+        await this.loadInReadyState();
+      }
       if (to === true) {
         this.$nextTick(() => {
           this.vAlphabetObserver = new IntersectionObserver(this.vAlphabetVisibilityChange, {});

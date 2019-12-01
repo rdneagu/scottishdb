@@ -1,5 +1,9 @@
 <template>
-  <router-link v-if="href" :to="href" class="bordered-button" :class="[ size ]">
+  <a v-if="mail" :href="mail" class="bordered-button" :class="[ size ]">
+    <span class="text"><slot></slot></span>
+    <i v-if="icon" class="icon" :class="[ getIcon ]"></i>
+  </a>
+  <router-link v-else-if="href" :to="href" class="bordered-button" :class="[ size ]">
     <span class="text"><slot></slot></span>
     <i v-if="icon" class="icon" :class="[ getIcon ]"></i>
   </router-link>
@@ -11,7 +15,7 @@
 
 <script>
 export default {
-  props: ['icon', 'size', 'href', 'click'],
+  props: ['icon', 'size', 'href', 'click', 'mail'],
   computed: {
     getIcon() {
       return `icon-${this.icon}`;

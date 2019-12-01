@@ -25,11 +25,12 @@
             </div>
           </aside>
           <div class="constituencies-wrapper">
-            <ul v-if="getFiltered.length > 0" class="constituencies">
-              <li v-for="constituency in getPage" class="constituency" :key="constituency.ID">
-                <label class="constituency-name">{{ constituency.Name }}</label>
-              </li>
-            </ul>
+            <div v-if="getFiltered.length > 0" class="constituencies">
+              <Constituency class="constituency" v-for="constituency in getPage"
+                :id="constituency.ID"
+                :key="constituency.ID"
+                size="full"></Constituency>
+            </div>
             <div v-else class="constituencies">
               <div class="no-result">No results have been found matching your request!</div>
             </div>
@@ -53,16 +54,17 @@
 </template>
 
 <script>
-import axios from 'axios';
+// import axios from 'axios';
 import _ from 'lodash';
 
 import Loading from '@/components/Loading.vue';
-// import OpaqueButton from '@/components/OpaqueButton.vue';
+import Constituency from '@/components/Constituency.vue';
 import BorderedButton from '@/components/BorderedButton.vue';
 
 export default {
   components: {
     Loading,
+    Constituency,
     BorderedButton,
   },
   data() {
@@ -83,20 +85,8 @@ export default {
       this.vAlphabetObserver.unobserve(this.$refs.hAlphabet);
     }
   },
-  async created() {
-    // Start the loading process
-    // Load constituencies API and parse the result
-    this.$store.commit('loadingStart');
-    if (_.isEmpty(this.constituencies)) {
-      this.$store.commit('loadingMessage', { message: 'Loading constituencies' });
-      const constituencies = await axios.get('https://data.parliament.scot/api/constituencies');
-      this.constituencies = _.chain(constituencies.data)
-        .filter(c => c.ValidUntilDate === null)
-        .orderBy('Name')
-        .value();
-    }
-    // End the loading process
-    this.$store.commit('loadingFinish', { status: 1 });
+  async mounted() {
+    await this.loadInReadyState();
   },
   computed: {
     getFiltered() {
@@ -130,6 +120,23 @@ export default {
     },
   },
   methods: {
+    async loadInReadyState() {
+      if (!this.$store.getters.isLoadingInReadyState) { return; }
+      await this.load();
+    },
+    async load() {
+      // Start the loading process
+      // Load constituencies API and parse the result
+      this.$store.commit('loadingStart');
+      if (_.isEmpty(this.constituencies)) {
+        this.$store.commit('loadingMessage', { message: 'Loading constituencies' });
+        this.constituencies = _.chain(this.$store.getters.getConstituencies)
+          .orderBy('Name')
+          .value();
+      }
+      // End the loading process
+      this.$store.commit('loadingSuccess');
+    },
     changePage(page) {
       if (page >= this.getFiltered.length) {
         this.page = 0;
@@ -155,7 +162,10 @@ export default {
     },
   },
   watch: {
-    '$store.state.loading.ready'(to) { // eslint-disable-line
+    '$store.state.loading.ready': async function (to, from) {
+      if (to === true && from === false) {
+        await this.loadInReadyState();
+      }
       if (to === true && !this.$route.params.id) {
         this.$nextTick(() => {
           this.vAlphabetObserver = new IntersectionObserver(this.vAlphabetVisibilityChange, {});
@@ -270,17 +280,11 @@ export default {
             font-size: 1.4em;
             text-align: center;
           }
-          li {
-            display: flex;
-            height: 200px;
+          .constituency {
             position: relative;
-            align-items: center;
-            justify-content: center;
             background-color: rgba($bg-blue, .4);
             border: 1px solid $border-blue;
             margin: 40px 0;
-            font-size: 4em;
-            font-weight: 300;
             &:before {
               content: "";
               position: absolute;
@@ -288,6 +292,7 @@ export default {
               bottom: 0;
               width: 8px;
               background-color: $border-blue;
+              z-index: 1;
             }
             &:nth-child(even) {
               border-radius: 5px 0 0 5px;

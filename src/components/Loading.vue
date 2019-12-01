@@ -1,8 +1,8 @@
 <template>
-  <div class="loading-wrapper">
+  <div class="loading-wrapper" :class="{ fail: hasFailed }">
     <div class="loading">
       <i class="icon icon-cog"></i>
-      <span class="status">LOADING</span>
+      <span class="status">{{ getStatus }}</span>
     </div>
     <span class="loading-message">{{ $store.state.loading.message }}</span>
   </div>
@@ -11,6 +11,9 @@
 <script>
 export default {
   computed: {
+    hasFailed() {
+      return this.$store.state.loading.error;
+    },
     getStatus() {
       return (this.$store.state.loading.error) ? 'ERROR' : 'LOADING';
     },
@@ -42,6 +45,12 @@ export default {
   }
   .loading-message {
     animation: fadeInOut 2s linear infinite forwards;
+  }
+
+  &.fail {
+    color: #ff6347;
+    .loading .icon { animation: none; }
+    .loading-message { animation: none; }
   }
 }
 </style>

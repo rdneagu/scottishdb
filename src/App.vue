@@ -16,15 +16,7 @@
       </div>
       <div v-else class="navigation">
         <MenuDropdown icon="menu" :dropdown="menuDropdown">Menu</MenuDropdown>
-        <div class="postcode-wrapper">
-          <div class="input-wrapper postcode">
-            <input type="text" name="postcode" id="postcode" v-model="postcode" placeholder="postcode" />
-          </div>
-          <div class="input-wrapper distance">
-            <input type="text" name="distance" id="distance" @blur="blurDistance" @focus="focusDistance" v-model="miles" />
-          </div>
-          <BorderedButton id="search-button" :href="postcodeHref" icon="search" size="sm">Search</BorderedButton>
-        </div>
+        <PostcodeSearch :compact="true"></PostcodeSearch>
         <div class="dummy-element"></div>
       </div>
     </header>
@@ -32,29 +24,34 @@
       <router-view class="page" />
     </transition>
     <footer>
-      <span class="copyright">Copyright &copy; 2019-2019 [name] Company. All rights reserved</span>
+      <span class="copyright">Copyright &copy; 2019-2019 Scottish DB. All rights reserved</span>
     </footer>
   </div>
 </template>
 
 <script>
-import _ from 'lodash';
-
 import MenuDropdown from '@/components/MenuDropdown.vue';
 import HeaderButton from '@/components/HeaderButton.vue';
-import BorderedButton from '@/components/BorderedButton.vue';
+import PostcodeSearch from '@/components/PostcodeSearch.vue';
 
 export default {
   components: {
     MenuDropdown,
     HeaderButton,
-    BorderedButton,
+    PostcodeSearch,
+  },
+  async mounted() {
+    this.$store.commit('loadingStart');
+    await this.$store.dispatch('loadConstituencies');
+    await this.$store.dispatch('loadElectionMembers');
+    await this.$store.dispatch('loadMembers');
+    await this.$store.dispatch('loadEmailAddresses');
+    await this.$store.dispatch('loadAddresses');
+    await this.$store.dispatch('loadRegions');
+    this.$store.commit('loadingSuccess');
   },
   data() {
     return {
-      distance: 0,
-      distanceIsActive: false,
-      postcode: '',
       menuDropdown: [
         { text: 'Constituencies', icon: 'constituencies', href: { path: 'constituencies' } },
         { text: 'Cities', icon: 'cities', href: { path: 'cities' } },
@@ -64,35 +61,10 @@ export default {
       ],
     };
   },
-  methods: {
-    blurDistance() {
-      this.distanceIsActive = false;
-    },
-    focusDistance() {
-      this.distanceIsActive = true;
-    },
-  },
+  methods: {},
   computed: {
     isHomePage() {
       return this.$route.name === 'home';
-    },
-    postcodeHref() {
-      return (!_.isEmpty(this.postcode)) ? { path: 'searchResult', query: { code: this.postcode } } : undefined;
-    },
-    miles: {
-      get() {
-        if (this.distanceIsActive) {
-          return this.distance.toString();
-        }
-        return `${this.distance} mi.`;
-      },
-      set(newValue) {
-        let distance = parseInt(newValue.replace(/[^\d]/g, ''), 10);
-        if (Number.isNaN(distance)) {
-          distance = 0;
-        }
-        this.distance = distance;
-      },
     },
   },
 };
@@ -127,7 +99,7 @@ a {
 :-ms-input-placeholderm,
 :-moz-placeholder,
 ::placeholder {
-  color: $text-blue;
+  color: inherit;
   font-style: oblique;
   text-align: center;
   opacity: .5;
@@ -144,45 +116,6 @@ a {
   border-left: 0;
   border-right: 0;
 
-  .postcode-wrapper {
-    display: flex;
-    text-align: center;
-    justify-content: center;
-    width: 50%;
-    .input-wrapper {
-      display: flex;
-      flex-direction: column;
-      border: 1px solid $text-blue;
-      border-radius: 4px;
-      text-align: center;
-      &.postcode {
-        width: 75%;
-        border-top-right-radius: 0px;
-        border-bottom-right-radius: 0px;
-      }
-      &.distance {
-        width: 25%;
-        border-left: none;
-        border-top-left-radius: 0px;
-        border-bottom-left-radius: 0px;
-        input {
-          font-weight: 500;
-        }
-      }
-      input {
-        background: rgba($border-blue, 0.2);
-        border: none;
-        outline: none;
-        box-shadow: none;
-        color: $text-blue;
-        text-align: center;
-        height: 30px;
-      }
-    }
-    #search-button {
-      margin-left: 10px;
-    }
-  }
   .dummy-element {
     width: 85px;
   }

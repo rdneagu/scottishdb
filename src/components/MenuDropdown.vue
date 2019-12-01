@@ -20,7 +20,6 @@ export default {
   },
   props: ['icon', 'dropdown'],
   created() {
-    console.log(this.dropdown);
     window.addEventListener('click', this.close);
   },
   beforeDestroy() {

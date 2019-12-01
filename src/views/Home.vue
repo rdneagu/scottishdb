@@ -5,26 +5,13 @@
       <div class="top-wrapper">
         <div class="bg-city"></div>
         <div class="heading">Find out more information about your area</div>
-        <div class="postcode-wrapper">
-          <div class="input-wrapper postcode">
-            <label for="postcode">POSTCODE</label>
-            <input type="text" name="postcode" id="postcode" v-model="postcode" />
-          </div>
-          <div class="input-wrapper distance">
-            <label for="distance">DISTANCE</label>
-            <input type="text" name="distance" id="distance" @blur="blurDistance" @focus="focusDistance" v-model="miles"/>
-          </div>
-        </div>
-        <div class="control-wrapper">
-          <OpaqueButton id="advanced-button" icon="cog">Advanced</OpaqueButton>
-          <BorderedButton id="search-button" :href="postcodeHref" icon="search">Search</BorderedButton>
-        </div>
+        <PostcodeSearch></PostcodeSearch>
         <div class="constituencies">
           <label class="constituencies-title">Some of Scotland's constituencies</label>
           <div class="constituencies-wrapper">
             <div class="constituencies-group-by-2" v-for="(group, index) in spotlight" :key="index">
-              <Constituency size="sm" :zone="group[0].Area">{{ group[0].Name }}</Constituency>
-              <Constituency size="sm" :zone="group[1].Area">{{ group[1].Name }}</Constituency>
+              <Constituency :id="group[0].ID" size="sm"></Constituency>
+              <Constituency :id="group[1].ID" size="sm"></Constituency>
             </div>
           </div>
         </div>
@@ -65,13 +52,13 @@
 
 <script>
 // ^((?!('AB|'DD|'FK|'G|'PA|'PH|'DG|'KA|'ML|'EH|'KY|'TD|'IV|'KW|'ZE|'HS|'KW)\d+\s).)*\n
-import axios from 'axios';
+// import axios from 'axios';
 import _ from 'lodash';
 
 import Loading from '@/components/Loading.vue';
-import OpaqueButton from '@/components/OpaqueButton.vue';
 import BorderedButton from '@/components/BorderedButton.vue';
 import Constituency from '@/components/Constituency.vue';
+import PostcodeSearch from '@/components/PostcodeSearch.vue';
 
 function rad2deg(rad) { // eslint-disable-line
   return rad * (180 / Math.PI);
@@ -83,101 +70,56 @@ function deg2rad(deg) { // eslint-disable-line
 export default {
   components: {
     Loading,
-    OpaqueButton,
     BorderedButton,
     Constituency,
+    PostcodeSearch,
   },
   data() {
     return {
       cities: [],
       constituencies: [],
       spotlight: [],
-      distance: 0,
-      distanceIsActive: false,
-      postcode: '',
     };
   },
-  async created() {
-    console.log(await axios.get('/api/getPostcodeInRadius.php'));
-    // Start the loading process
-    // Load cities API and parse the result
-    this.$store.commit('loadingStart');
-    if (_.isEmpty(this.cities)) {
-      this.$store.commit('loadingMessage', { message: 'Loading cities' });
-      const addresses = await axios.get('https://data.parliament.scot/api/addresses');
-      this.cities = _.chain(addresses.data)
-        .filter(a => a.AddressTypeID === 2)
-        .forEach(a => a.Region = (_.isEmpty(a.Region) ? a.Town : a.Region)) // eslint-disable-line        
-        .uniqBy('Region')
-        .value();
-    }
-    if (_.isEmpty(this.constituencies)) {
-      // Load constituencies API
-      this.$store.commit('loadingMessage', { message: 'Loading constituencies' });
-      const constituencies = await axios.get('https://data.parliament.scot/api/constituencies');
-      this.constituencies = _.chain(constituencies.data)
-        .filter(c => c.ValidUntilDate === null)
-        .orderBy('Name')
-        .value();
-    }
-    if (_.isEmpty(this.spotlight[0])) {
-      const [constituencies] = [this.constituencies];
-      // Add 4 random samples from the constituencies data and group them by 2
-      this.spotlight = _.chain(constituencies)
-        .sampleSize(4)
-        .chunk(2)
-        .value();
-      // Load members elected and regions
-      const mecs = await axios.get('https://data.parliament.scot/api/MemberElectionConstituencyStatuses');
-      const regions = await axios.get('https://data.parliament.scot/api/regions');
-      _.forEach(this.spotlight, (group) => {
-        _.forEach(group, (element) => {
-          const member = _.chain(mecs.data)
-            .filter(m => m.ConstituencyID === element.ID)
-            .orderBy('ValidFromDate', 'desc')
-            .head()
-            .value();
-          const region = _.chain(regions.data)
-            .filter(r => _.find(constituencies, c => c.ID === member.ConstituencyID && c.RegionID === r.ID))
-            .head()
-            .get('Name')
-            .value();
-          element.Area = region; // eslint-disable-line
-        });
-      });
-    }
-    // End the loading process
-    this.$store.commit('loadingFinish', { status: 1 });
+  async mounted() {
+    await this.loadInReadyState();
   },
   methods: {
-    blurDistance() {
-      this.distanceIsActive = false;
+    async loadInReadyState() {
+      if (!this.$store.getters.isLoadingInReadyState) { return; }
+      await this.load();
     },
-    focusDistance() {
-      this.distanceIsActive = true;
+    async load() {
+      // console.log(await axios.get('/api/getPostcodeInRadius.php'));
+      // Start the loading process
+      // Load cities API and parse the result
+      this.$store.commit('loadingStart');
+      if (this.cities.length === 0) {
+        this.$store.commit('loadingMessage', { message: 'Loading cities' });
+        this.cities = this.$store.getters.getCities;
+      }
+      if (this.constituencies.length === 0) {
+        this.$store.commit('loadingMessage', { message: 'Loading constituencies' });
+        this.constituencies = this.$store.getters.getConstituencies;
+      }
+      if (this.spotlight.length === 0) {
+        // Add 4 random samples from the constituencies data and group them by 2
+        this.$store.commit('loadingMessage', { message: 'Preparing spotlight' });
+        this.spotlight = _.chain(this.constituencies)
+          .sampleSize(4)
+          .chunk(2)
+          .value();
+      }
+      // End the loading process
+      this.$store.commit('loadingSuccess');
     },
   },
-  computed: {
-    citiesCount() {
-      return _.uniqBy(this.cities, 'Region');
-    },
-    postcodeHref() {
-      return (!_.isEmpty(this.postcode)) ? { path: 'searchResult', query: { code: this.postcode } } : undefined;
-    },
-    miles: {
-      get() {
-        if (this.distanceIsActive) {
-          return this.distance.toString();
-        }
-        return `${this.distance} mi.`;
-      },
-      set(newValue) {
-        let distance = parseInt(newValue.replace(/[^\d]/g, ''), 10);
-        if (Number.isNaN(distance)) {
-          distance = 0;
-        }
-        this.distance = _.clamp(distance, 0, 10);
-      },
+  computed: {},
+  watch: {
+    '$store.state.loading.ready': async function (to, from) {
+      if (to === true && from === false) {
+        await this.loadInReadyState();
+      }
     },
   },
 };
@@ -190,67 +132,6 @@ export default {
   display: flex;
   flex-direction: column;
   .top-wrapper {
-    .postcode-wrapper {
-      margin: 10px 15%;
-      display: flex;
-      text-align: center;
-      justify-content: center;
-      .input-wrapper {
-        display: flex;
-        flex-direction: column;
-        border: 1px solid $text-blue;
-        border-radius: 8px;
-        text-align: center;
-        &.postcode {
-          width: 70%;
-          border-top-right-radius: 0px;
-          border-bottom-right-radius: 0px;
-        }
-        &.distance {
-          width: 25%;
-          border-top-left-radius: 0px;
-          border-bottom-left-radius: 0px;
-          border-left: none;
-          input {
-            font-size: 2em;
-            font-weight: 500;
-          }
-        }
-        input {
-          font-size: 3em;
-          background: rgba($border-blue, 0.2);
-          border: none;
-          outline: none;
-          box-shadow: none;
-          color: $text-blue;
-          text-align: center;
-          height: 70px;
-        }
-        label {
-          font-size: 0.9em;
-          padding: 2px 0;
-          font-weight: 500;
-        }
-      }
-    }
-    .control-wrapper {
-      display: flex;
-      flex-flow: row-wrap;
-      justify-content: space-between;
-      align-items: center;
-      position: relative;
-      margin: 20px 15%;
-      padding: 0 2%;
-      #advanced-button {
-        .icon {
-          transform: rotate(0deg);
-          transition: transform .2s ease;
-        }
-        &:hover .icon {
-          transform: rotate(90deg);
-        }
-      }
-    }
     .constituencies {
       padding: 5px;
       border: 1px solid $border-blue;
