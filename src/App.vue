@@ -5,14 +5,27 @@
         <span class="logo-text">Scottish DB</span>
         <i class="icon icon-database"></i>
       </router-link>
-      <div class="navigation">
+      <div v-if="isHomePage" class="navigation">
         <div class="menu">
-          <HeaderButton link="/constituencies" icon="constituencies">Constituencies</HeaderButton>
-          <HeaderButton link="/cities" icon="cities">Cities</HeaderButton>
-          <HeaderButton link="/zones" icon="zones">Zones</HeaderButton>
-          <HeaderButton link="/about-us" icon="about-us">About Us</HeaderButton>
-          <HeaderButton link="/contact-us" icon="contact-us">Contact Us</HeaderButton>
+          <HeaderButton href="/constituencies" icon="constituencies">Constituencies</HeaderButton>
+          <HeaderButton href="/cities" icon="cities">Cities</HeaderButton>
+          <HeaderButton href="/msp" icon="zones">MSP</HeaderButton>
+          <HeaderButton href="/about-us" icon="about-us">About Us</HeaderButton>
+          <HeaderButton href="/contact-us" icon="contact-us">Contact Us</HeaderButton>
         </div>
+      </div>
+      <div v-else class="navigation">
+        <MenuDropdown icon="menu" :dropdown="menuDropdown">Menu</MenuDropdown>
+        <div class="postcode-wrapper">
+          <div class="input-wrapper postcode">
+            <input type="text" name="postcode" id="postcode" v-model="postcode" placeholder="postcode" />
+          </div>
+          <div class="input-wrapper distance">
+            <input type="text" name="distance" id="distance" @blur="blurDistance" @focus="focusDistance" v-model="miles" />
+          </div>
+          <BorderedButton id="search-button" :href="postcodeHref" icon="search" size="sm">Search</BorderedButton>
+        </div>
+        <div class="dummy-element"></div>
       </div>
     </header>
     <transition name="fade-quick" mode="out-in">
@@ -25,11 +38,62 @@
 </template>
 
 <script>
+import _ from 'lodash';
+
+import MenuDropdown from '@/components/MenuDropdown.vue';
 import HeaderButton from '@/components/HeaderButton.vue';
+import BorderedButton from '@/components/BorderedButton.vue';
 
 export default {
   components: {
+    MenuDropdown,
     HeaderButton,
+    BorderedButton,
+  },
+  data() {
+    return {
+      distance: 0,
+      distanceIsActive: false,
+      postcode: '',
+      menuDropdown: [
+        { text: 'Constituencies', icon: 'constituencies', href: { path: 'constituencies' } },
+        { text: 'Cities', icon: 'cities', href: { path: 'cities' } },
+        { text: 'Zones', icon: 'zones', href: { path: 'zones' } },
+        { text: 'About Us', icon: 'about-us', href: { path: 'about-us' } },
+        { text: 'Contact Us', icon: 'contact-us', href: { path: 'contact-us' } },
+      ],
+    };
+  },
+  methods: {
+    blurDistance() {
+      this.distanceIsActive = false;
+    },
+    focusDistance() {
+      this.distanceIsActive = true;
+    },
+  },
+  computed: {
+    isHomePage() {
+      return this.$route.name === 'home';
+    },
+    postcodeHref() {
+      return (!_.isEmpty(this.postcode)) ? { path: 'searchResult', query: { code: this.postcode } } : undefined;
+    },
+    miles: {
+      get() {
+        if (this.distanceIsActive) {
+          return this.distance.toString();
+        }
+        return `${this.distance} mi.`;
+      },
+      set(newValue) {
+        let distance = parseInt(newValue.replace(/[^\d]/g, ''), 10);
+        if (Number.isNaN(distance)) {
+          distance = 0;
+        }
+        this.distance = distance;
+      },
+    },
   },
 };
 </script>
@@ -70,13 +134,58 @@ a {
 }
 
 .navigation {
+  min-height: 60px;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding: 10px 10%;
+  padding: 0 10%;
   background-color: $bg-blue-2;
   border: 1px solid $border-blue;
   border-left: 0;
   border-right: 0;
+
+  .postcode-wrapper {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    width: 50%;
+    .input-wrapper {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid $text-blue;
+      border-radius: 4px;
+      text-align: center;
+      &.postcode {
+        width: 75%;
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 0px;
+      }
+      &.distance {
+        width: 25%;
+        border-left: none;
+        border-top-left-radius: 0px;
+        border-bottom-left-radius: 0px;
+        input {
+          font-weight: 500;
+        }
+      }
+      input {
+        background: rgba($border-blue, 0.2);
+        border: none;
+        outline: none;
+        box-shadow: none;
+        color: $text-blue;
+        text-align: center;
+        height: 30px;
+      }
+    }
+    #search-button {
+      margin-left: 10px;
+    }
+  }
+  .dummy-element {
+    width: 85px;
+  }
 }
 .page {
   display: flex;

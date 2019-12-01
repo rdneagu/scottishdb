@@ -5,41 +5,20 @@ import Home from '../views/Home.vue';
 Vue.use(VueRouter);
 
 const routes = [
-  {
-    path: '/',
-    name: 'home',
-    component: Home,
-  },
+  { path: '/', name: 'home', component: Home },
   {
     path: '/constituencies',
     name: 'constituencies',
     component: () => import('../views/Constituencies.vue'),
+    children: [
+      { path: ':id', component: () => import('../views/Constituencies_Id.vue'), props: true },
+    ],
   },
-  {
-    path: '/cities',
-    name: 'cities',
-    component: () => import('../views/Cities.vue'),
-  },
-  {
-    path: '/zones',
-    name: 'zones',
-    component: () => import('../views/Zones.vue'),
-  },
-  {
-    path: '/about-us',
-    name: 'about-us',
-    component: () => import('../views/AboutUs.vue'),
-  },
-  {
-    path: '/contact-us',
-    name: 'contact-us',
-    component: () => import('../views/ContactUs.vue'),
-  },
-  {
-    path: '*',
-    name: '404',
-    component: () => import('../views/404.vue'),
-  },
+  { path: '/cities', name: 'cities', component: () => import('../views/Cities.vue') },
+  { path: '/zones', name: 'zones', component: () => import('../views/Zones.vue') },
+  { path: '/about-us', name: 'about-us', component: () => import('../views/AboutUs.vue') },
+  { path: '/contact-us', name: 'contact-us', component: () => import('../views/ContactUs.vue') },
+  { path: '*', name: '404', component: () => import('../views/404.vue') },
 ];
 
 export default new VueRouter({

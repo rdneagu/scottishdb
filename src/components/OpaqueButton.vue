@@ -37,7 +37,7 @@ export default {
   transition: color .2s ease;
   .icon { margin-right: 8px; }
   .text { transition: padding-left .2s ease; }
-  &:hover {
+  &:hover, &.active {
     color: lighten($text-blue, 30%);
     .text { padding-left: 10px; }
   }

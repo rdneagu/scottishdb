@@ -8,7 +8,7 @@
         <div class="postcode-wrapper">
           <div class="input-wrapper postcode">
             <label for="postcode">POSTCODE</label>
-            <input type="text" name="postcode" id="postcode"/>
+            <input type="text" name="postcode" id="postcode" v-model="postcode" />
           </div>
           <div class="input-wrapper distance">
             <label for="distance">DISTANCE</label>
@@ -17,7 +17,7 @@
         </div>
         <div class="control-wrapper">
           <OpaqueButton id="advanced-button" icon="cog">Advanced</OpaqueButton>
-          <BorderedButton id="search-button" icon="search">Search</BorderedButton>
+          <BorderedButton id="search-button" :href="postcodeHref" icon="search">Search</BorderedButton>
         </div>
         <div class="constituencies">
           <label class="constituencies-title">Some of Scotland's constituencies</label>
@@ -31,7 +31,7 @@
       </div>
       <div class="bottom-wrapper">
         <div class="brief-stats">
-          <BorderedButton id="see-all-constituencies" icon="list-numbered" size="sm">See all constituencies</BorderedButton>
+          <BorderedButton id="see-all-constituencies" href="/constituencies" icon="list-numbered" size="sm">See all constituencies</BorderedButton>
           <div class="stats-count">
             <div class="cities-count">
               <span class="emphasize">{{ cities.length }}</span>
@@ -64,6 +64,7 @@
 </template>
 
 <script>
+// ^((?!('AB|'DD|'FK|'G|'PA|'PH|'DG|'KA|'ML|'EH|'KY|'TD|'IV|'KW|'ZE|'HS|'KW)\d+\s).)*\n
 import axios from 'axios';
 import _ from 'lodash';
 
@@ -71,6 +72,13 @@ import Loading from '@/components/Loading.vue';
 import OpaqueButton from '@/components/OpaqueButton.vue';
 import BorderedButton from '@/components/BorderedButton.vue';
 import Constituency from '@/components/Constituency.vue';
+
+function rad2deg(rad) { // eslint-disable-line
+  return rad * (180 / Math.PI);
+}
+function deg2rad(deg) { // eslint-disable-line
+  return deg * (Math.PI / 180);
+}
 
 export default {
   components: {
@@ -86,9 +94,11 @@ export default {
       spotlight: [],
       distance: 0,
       distanceIsActive: false,
+      postcode: '',
     };
   },
   async created() {
+    console.log(await axios.get('/api/getPostcodeInRadius.php'));
     // Start the loading process
     // Load cities API and parse the result
     this.$store.commit('loadingStart');
@@ -105,7 +115,10 @@ export default {
       // Load constituencies API
       this.$store.commit('loadingMessage', { message: 'Loading constituencies' });
       const constituencies = await axios.get('https://data.parliament.scot/api/constituencies');
-      this.constituencies = constituencies.data;
+      this.constituencies = _.chain(constituencies.data)
+        .filter(c => c.ValidUntilDate === null)
+        .orderBy('Name')
+        .value();
     }
     if (_.isEmpty(this.spotlight[0])) {
       const [constituencies] = [this.constituencies];
@@ -114,7 +127,6 @@ export default {
         .sampleSize(4)
         .chunk(2)
         .value();
-      console.log(this.spotlight);
       // Load members elected and regions
       const mecs = await axios.get('https://data.parliament.scot/api/MemberElectionConstituencyStatuses');
       const regions = await axios.get('https://data.parliament.scot/api/regions');
@@ -149,6 +161,9 @@ export default {
     citiesCount() {
       return _.uniqBy(this.cities, 'Region');
     },
+    postcodeHref() {
+      return (!_.isEmpty(this.postcode)) ? { path: 'searchResult', query: { code: this.postcode } } : undefined;
+    },
     miles: {
       get() {
         if (this.distanceIsActive) {
@@ -161,7 +176,7 @@ export default {
         if (Number.isNaN(distance)) {
           distance = 0;
         }
-        this.distance = distance;
+        this.distance = _.clamp(distance, 0, 10);
       },
     },
   },
@@ -196,6 +211,10 @@ export default {
           border-top-left-radius: 0px;
           border-bottom-left-radius: 0px;
           border-left: none;
+          input {
+            font-size: 2em;
+            font-weight: 500;
+          }
         }
         input {
           font-size: 3em;
@@ -206,10 +225,6 @@ export default {
           color: $text-blue;
           text-align: center;
           height: 70px;
-        }
-        &.distance input{
-          font-size: 2em;
-          font-weight: 500;
         }
         label {
           font-size: 0.9em;
