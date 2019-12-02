@@ -60,13 +60,6 @@ import BorderedButton from '@/components/BorderedButton.vue';
 import Constituency from '@/components/Constituency.vue';
 import PostcodeSearch from '@/components/PostcodeSearch.vue';
 
-function rad2deg(rad) { // eslint-disable-line
-  return rad * (180 / Math.PI);
-}
-function deg2rad(deg) { // eslint-disable-line
-  return deg * (Math.PI / 180);
-}
-
 export default {
   components: {
     Loading,
@@ -116,7 +109,7 @@ export default {
   },
   computed: {},
   watch: {
-    '$store.state.loading.ready': async function (to, from) {
+    '$store.state.loading.ready': async function (to, from) { // eslint-disable-line
       if (to === true && from === false) {
         await this.loadInReadyState();
       }

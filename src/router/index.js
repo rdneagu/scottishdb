@@ -20,7 +20,12 @@ const routes = [
     ],
   },
   { path: '/cities', name: 'cities', component: () => import('../views/Cities.vue') },
-  { path: '/zones', name: 'zones', component: () => import('../views/Zones.vue') },
+  {
+    path: '/occupations',
+    name: 'occupations',
+    component: () => import('../views/Occupations.vue'),
+    props: route => ({ query: route.query }),
+  },
   { path: '/about-us', name: 'about-us', component: () => import('../views/AboutUs.vue') },
   { path: '/contact-us', name: 'contact-us', component: () => import('../views/ContactUs.vue') },
   {

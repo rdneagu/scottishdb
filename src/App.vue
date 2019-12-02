@@ -55,7 +55,7 @@ export default {
       menuDropdown: [
         { text: 'Constituencies', icon: 'constituencies', href: { name: 'constituencies' } },
         { text: 'Cities', icon: 'cities', href: { name: 'cities' } },
-        { text: 'Zones', icon: 'zones', href: { name: 'zones' } },
+        { text: 'Occupations', icon: 'occupations', href: { name: 'occupations' } },
         { text: 'About Us', icon: 'about-us', href: { name: 'about-us' } },
         { text: 'Contact Us', icon: 'contact-us', href: { name: 'contact-us' } },
       ],

@@ -156,7 +156,7 @@ export default {
     },
   },
   watch: {
-    '$store.state.loading.ready': async function (to, from) {
+    '$store.state.loading.ready': async function (to, from) { // eslint-disable-line
       if (to === true && from === false) {
         await this.loadInReadyState();
       }

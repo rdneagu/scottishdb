@@ -16,6 +16,28 @@
               :id="zone.constituency.ID"></Constituency>
           </div>
         </aside>
+        <div v-if="census.length" class="result-wrapper">
+          <div class="panel result-panel">
+            <div class="breakdown jobs-breakdown">
+              <div class="label">
+                <label class="title">Jobs breakdown</label>
+                <label class="num">Total jobs: {{ census[0].jobs.totalJobs }}</label>
+              </div>
+              <div class="charts">
+                <RadialBarChart v-for="(job, id) in getJobsBreakdown" v-bind="job" :key="id"></RadialBarChart>
+              </div>
+            </div>
+            <div class="breakdown residents-occupations">
+              <div class="label">
+                <label class="title">Residents occupations</label>
+                <label class="num">Total residents: {{ census[0].residents.totalResidents }}</label>
+              </div>
+              <div class="charts">
+                <RadialBarChart v-for="(occupation, id) in getResidentsOccupations" v-bind="occupation" :key="id"></RadialBarChart>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </transition>
@@ -26,6 +48,7 @@ import _ from 'lodash';
 import axios from 'axios';
 import postcodes from 'node-postcodes.io';
 
+import RadialBarChart from '@/components/RadialBarChart.vue';
 import Loading from '@/components/Loading.vue';
 import Constituency from '@/components/Constituency.vue';
 
@@ -51,6 +74,7 @@ function distance(lat1, lon1, lat2, lon2, unit) {
 
 export default {
   components: {
+    RadialBarChart,
     Loading,
     Constituency,
   },
@@ -58,6 +82,7 @@ export default {
   data() {
     return {
       nearest: [],
+      census: [],
     };
   },
   async mounted() {
@@ -108,13 +133,26 @@ export default {
               distance: distance(status.result.latitude, status.result.longitude, area.result[0].latitude, area.result[0].longitude),
             };
           } catch (e) {
-            // console.error(e);
-            // console.error(`Failed to load constituency data for postcode ${area.result[0].postcode}`);
             return false;
           }
         })
         .value());
       this.nearest = _.orderBy(this.nearest, 'distance', 'asc');
+      this.$store.commit('loadingMessage', { message: 'Generating charts' });
+      this.census = await Promise.all(_.chain(this.nearest)
+        .take(1)
+        .map(async (area) => {
+          const distanceResponse = await axios.get(`http://api.lmiforall.org.uk/api/v1/census/distance?area=${area.postcode}`);
+          const jobsResponse = await axios.get(`http://api.lmiforall.org.uk/api/v1/census/jobs_breakdown?area=${area.postcode}`);
+          const residentsResponse = await axios.get(`http://api.lmiforall.org.uk/api/v1/census/resident_occupations?area=${area.postcode}`);
+          return {
+            distance: distanceResponse.data,
+            jobs: jobsResponse.data,
+            residents: residentsResponse.data,
+          };
+        })
+        .value());
+      console.log(this.census);
       // End the loading process
       this.$store.commit('loadingSuccess');
     },
@@ -122,6 +160,32 @@ export default {
   computed: {
     getSize() {
       return (this.nearest.length > 1) ? 'sm' : 'full';
+    },
+    getJobsBreakdown() {
+      const jobs = _.chain(this.census)
+        .map(area => _.chain(area.jobs.jobsBreakdown)
+          .filter(job => job.description !== 'Not available' && job.percentage > 0)
+          .map(job => ({
+            value: job.percentage.toFixed(2),
+            label: _.startCase(_.lowerCase(job.description)),
+          }))
+          .value())
+        .head()
+        .value();
+      return jobs;
+    },
+    getResidentsOccupations() {
+      const residents = _.chain(this.census)
+        .map(area => _.chain(area.residents.residentOccupations)
+          .filter(occupation => occupation.percentage > 0)
+          .map(occupation => ({
+            value: occupation.percentage.toFixed(2),
+            label: _.startCase(_.lowerCase(occupation.description)),
+          }))
+          .value())
+        .head()
+        .value();
+      return residents;
     },
   },
   watch: {
@@ -131,7 +195,7 @@ export default {
         await this.load();
       },
     },
-    '$store.state.loading.ready': async function (to, from) {
+    '$store.state.loading.ready': async function (to, from) { // eslint-disable-line
       if (to === true && from === false) {
         await this.loadInReadyState();
       }
@@ -163,6 +227,50 @@ export default {
           margin: 10px;
           &:first-child { margin-left: 0; }
           &:last-child { margin-right: 0; }
+        }
+      }
+    }
+    .result-wrapper {
+      display: grid;
+      grid-template-areas: "result result";
+      grid-template-columns: 2fr 8fr;
+      grid-column-gap: 10px;
+      margin-top: 20px;
+      .result-panel {
+        grid-area: result;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        .breakdown {
+          display: flex;
+          flex-direction: column;
+          border: 1px solid $border-blue;
+          border-radius: 4px;
+          background-color: rgba($bg-blue, .6);
+          margin: 8px 0;
+          overflow: hidden;
+          > .label {
+            display: flex;
+            flex-flow: row wrap;
+            padding: 5px;
+            background-color: rgba(darken($text-blue, 20%), .4);
+            font-weight: 500;
+            .title {
+              flex: 1;
+              align-self: flex-start;
+            }
+            .num {
+              align-self: flex-end;
+            }
+          }
+          .charts {
+            display: flex;
+            padding: 8px 0;
+            overflow-x: auto;
+            .radial-bar-chart {
+              margin: 0 10px;
+            }
+          }
         }
       }
     }
