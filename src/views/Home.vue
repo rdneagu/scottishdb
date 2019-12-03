@@ -79,7 +79,8 @@ export default {
   },
   methods: {
     async loadInReadyState() {
-      if (!this.$store.getters.isLoadingInReadyState) { return; }
+      document.title = 'Scottish DB';
+      if (!this.$store.getters.isLoadingInReadyState || this.cities.length !== 0) { return; }
       await this.load();
     },
     async load() {

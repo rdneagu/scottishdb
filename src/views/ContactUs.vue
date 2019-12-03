@@ -49,6 +49,9 @@ export default {
     Loading,
     BorderedButton,
   },
+  mounted() {
+    document.title = 'Scottish DB - Contact Us';
+  },
 };
 </script>
 

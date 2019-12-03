@@ -1,31 +1,33 @@
 <template>
   <div id="app">
-    <header>
-      <router-link to="/" class="logo">
-        <span class="logo-text">Scottish DB</span>
-        <i class="icon icon-database"></i>
-      </router-link>
-      <div v-if="isHomePage && $resize && $mq.above(961)" class="navigation">
-        <div class="menu">
-          <HeaderButton v-bind="menuDropdown[0]">{{ menuDropdown[0].text }}</HeaderButton>
-          <HeaderButton v-bind="menuDropdown[1]">{{ menuDropdown[1].text }}</HeaderButton>
-          <HeaderButton v-bind="menuDropdown[2]">{{ menuDropdown[2].text }}</HeaderButton>
-          <HeaderButton v-bind="menuDropdown[3]">{{ menuDropdown[3].text }}</HeaderButton>
-          <HeaderButton v-bind="menuDropdown[4]">{{ menuDropdown[4].text }}</HeaderButton>
+    <template v-if="!invalidBrowser">
+      <header>
+        <router-link to="/" class="logo">
+          <span class="logo-text">Scottish DB</span>
+          <i class="icon icon-database"></i>
+        </router-link>
+        <div v-if="isHomePage && $resize && $mq.above(961)" class="navigation">
+          <div class="menu">
+            <HeaderButton v-bind="menuDropdown[0]">{{ menuDropdown[0].text }}</HeaderButton>
+            <HeaderButton v-bind="menuDropdown[1]">{{ menuDropdown[1].text }}</HeaderButton>
+            <HeaderButton v-bind="menuDropdown[2]">{{ menuDropdown[2].text }}</HeaderButton>
+            <HeaderButton v-bind="menuDropdown[3]">{{ menuDropdown[3].text }}</HeaderButton>
+          </div>
         </div>
-      </div>
-      <div v-else class="navigation compact">
-        <MenuDropdown icon="menu" :dropdown="menuDropdown">Menu</MenuDropdown>
-        <PostcodeSearch v-if="!isHomePage" :compact="true"></PostcodeSearch>
-        <div v-if="!isHomePage" class="dummy-element"></div>
-      </div>
-    </header>
-    <transition name="fade-quick" mode="out-in">
-      <router-view class="page" />
-    </transition>
-    <footer>
-      <span class="copyright">Copyright &copy; 2019-2019 Scottish DB. All rights reserved</span>
-    </footer>
+        <div v-else class="navigation compact">
+          <MenuDropdown icon="menu" :dropdown="menuDropdown">Menu</MenuDropdown>
+          <PostcodeSearch v-if="!isHomePage" :compact="true"></PostcodeSearch>
+          <div v-if="!isHomePage" class="dummy-element"></div>
+        </div>
+      </header>
+      <transition name="fade-quick" mode="out-in">
+        <router-view class="page" />
+      </transition>
+      <footer>
+        <span class="copyright">Copyright &copy; 2019-2019 Scottish DB. All rights reserved</span>
+      </footer>
+    </template>
+    <div class="invalidBrowser" v-else>This browser is not currently supported!</div>
   </div>
 </template>
 
@@ -34,24 +36,17 @@ import MenuDropdown from '@/components/MenuDropdown.vue';
 import HeaderButton from '@/components/HeaderButton.vue';
 import PostcodeSearch from '@/components/PostcodeSearch.vue';
 
+const { detect } = require('detect-browser');
+
 export default {
   components: {
     MenuDropdown,
     HeaderButton,
     PostcodeSearch,
   },
-  async mounted() {
-    this.$store.commit('loadingStart');
-    await this.$store.dispatch('loadConstituencies');
-    await this.$store.dispatch('loadElectionMembers');
-    await this.$store.dispatch('loadMembers');
-    await this.$store.dispatch('loadEmailAddresses');
-    await this.$store.dispatch('loadAddresses');
-    await this.$store.dispatch('loadRegions');
-    this.$store.commit('loadingSuccess');
-  },
   data() {
     return {
+      invalidBrowser: false,
       menuDropdown: [
         { text: 'Constituencies', icon: 'constituencies', href: { name: 'constituencies' } },
         { text: 'Cities', icon: 'cities', href: { name: 'cities' } },
@@ -59,6 +54,21 @@ export default {
         { text: 'Contact Us', icon: 'contact-us', href: { name: 'contact-us' } },
       ],
     };
+  },
+  async mounted() {
+    const browser = detect();
+    this.invalidBrowser = (browser.name === 'ie');
+
+    if (!this.invalidBrowser) {
+      this.$store.commit('loadingStart');
+      await this.$store.dispatch('loadConstituencies');
+      await this.$store.dispatch('loadElectionMembers');
+      await this.$store.dispatch('loadMembers');
+      await this.$store.dispatch('loadEmailAddresses');
+      await this.$store.dispatch('loadAddresses');
+      await this.$store.dispatch('loadRegions');
+      this.$store.commit('loadingSuccess');
+    }
   },
   methods: {},
   computed: {
@@ -164,6 +174,14 @@ footer { text-align: center; padding: 20px 0; }
   margin: 0 10%;
   .icon { margin-left: 10px; }
   .logo-text { font-weight: 500; }
+}
+
+.invalidBrowser {
+  color: #ff6347;
+  margin: 10px;
+  font-size: 3em;
+  font-weight: 700;
+  text-align: center;
 }
 
 .fade-enter-active { transition: opacity .4s ease; }

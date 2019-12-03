@@ -86,6 +86,7 @@ export default {
     }
   },
   async mounted() {
+    document.title = 'Scottish DB - List of constituencies';
     await this.loadInReadyState();
   },
   computed: {

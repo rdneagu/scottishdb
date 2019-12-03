@@ -83,6 +83,7 @@ export default {
     }
   },
   async mounted() {
+    document.title = 'Scottish DB - List of cities';
     await this.loadInReadyState();
   },
   computed: {

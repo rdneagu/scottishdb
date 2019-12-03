@@ -45,7 +45,7 @@
                 </div>
               </div>
             </div>
-            <div v-else-if="noResult" class="occupation-result">
+            <div v-else-if="noResult && query.search" class="occupation-result">
               <div class="no-result">No results have been found matching your request!</div>
             </div>
             <div v-if="soc.length > 1" class="page-wrapper">
@@ -354,6 +354,12 @@ export default {
       await this.load();
     },
     async load() {
+      document.title = 'Scottish DB - Occupation';
+      if (this.query.search) {
+        document.title += `: ${this.query.search}`;
+      } else {
+        return;
+      }
       // Start the loading process
       // Load occupations API and parse the result
       this.$store.commit('loadingStart');

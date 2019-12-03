@@ -46,7 +46,6 @@
 <script>
 import _ from 'lodash';
 import axios from 'axios';
-import postcodes from 'node-postcodes.io';
 
 import RadialBarChart from '@/components/RadialBarChart.vue';
 import Loading from '@/components/Loading.vue';
@@ -94,34 +93,36 @@ export default {
       await this.load();
     },
     async load() {
+      document.title = `Scottish DB - Search result: ${this.query.postcode.toUpperCase()}`;
       // Start the loading process
       // Load cities API and parse the result
       this.$store.commit('loadingStart');
       this.$store.commit('loadingMessage', { message: 'Validating postcode' });
-      const status = await postcodes.lookup(this.query.postcode);
-      if (status.error) {
+      let status;
+      try {
+        status = await axios.get(`https://api.postcodes.io/postcodes/${this.query.postcode}`);
+      } catch (e) {
         this.$store.commit('loadingFail', { message: 'Invalid postcode!' });
         return;
       }
       this.$store.commit('loadingMessage', { message: 'Consulting map' });
-      const nearest = await postcodes.outcodes(status.result.postcode.split(' ')[0], {
-        limit: 100,
-        radius: mToKm(this.query.distance) || 1,
+      const nearest = await axios.get(`https://api.postcodes.io/outcodes/${status.data.result.postcode.split(' ')[0]}/nearest`, {
+        params: {
+          limit: 100,
+          radius: mToKm(this.query.distance) || 1,
+        },
       });
-      const geodata = [];
-      _.forEach(nearest.result, (postcode) => {
-        geodata.push({
-          longitude: postcode.longitude,
-          latitude: postcode.latitude,
-          limit: 15,
-        });
-      });
-      const areas = await postcodes.geo(geodata);
-      this.nearest = await Promise.all(_.chain(areas.result)
+      const geolocations = _.map(nearest.data.result, postcode => ({
+        longitude: postcode.longitude,
+        latitude: postcode.latitude,
+        limit: 15,
+      }));
+      const areas = await axios.post('https://api.postcodes.io/postcodes', { geolocations });
+      this.nearest = await Promise.all(_.chain(areas.data.result)
         .reject(area => area.result === null)
         .map(async (area) => {
           try {
-            const postcode = (area.result[0].outcode === status.result.outcode) ? this.query.postcode : area.result[0].postcode;
+            const postcode = (area.result[0].outcode === status.data.result.outcode) ? this.query.postcode : area.result[0].postcode;
             const tmpPostcode = await axios.get(`https://api.postcodes.io/scotland/postcodes/${postcode}`);
             const constituency = this.$store.getters.getConstituencies.find(c => c.Name === tmpPostcode.data.result.scottish_parliamentary_constituency);
             return {
@@ -130,7 +131,7 @@ export default {
               outcode: area.result[0].outcode,
               latitude: area.result[0].latitude,
               longitude: area.result[0].longitude,
-              distance: distance(status.result.latitude, status.result.longitude, area.result[0].latitude, area.result[0].longitude),
+              distance: distance(status.data.result.latitude, status.data.result.longitude, area.result[0].latitude, area.result[0].longitude),
             };
           } catch (e) {
             return false;
