@@ -200,4 +200,38 @@ export default {
     }
   }
 }
+
+@media (min-width: 320px)  { /* smartphones, iPhone, portrait 480x320 phones */
+  .postcode-wrapper:not(.compact) {
+    .postcode-search, .control-wrapper {
+      margin-left: 2%;
+      margin-right: 2%;
+      .input-wrapper input { height: 40px }
+      .input-wrapper label { font-size: 0.8em }
+      .input-wrapper.postcode input { font-size: 1.8em; }
+      .input-wrapper.distance input { font-size: 1.4em; }
+    }
+  }
+}
+@media (min-width: 481px)  { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */
+}
+@media (min-width: 641px)  { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */
+  .postcode-wrapper:not(.compact) {
+    .postcode-search, .control-wrapper {
+      margin-left: 15%;
+      margin-right: 15%;
+      .input-wrapper input { height: 70px }
+      .input-wrapper label { font-size: 0.9em }
+      .input-wrapper.postcode input { font-size: 3em; }
+      .input-wrapper.distance input { font-size: 2em; }
+    }
+  }
+}
+@media (min-width: 961px)  { /* tablet, landscape iPad, lo-res laptops ands desktops */
+  header { text-align: initial; }
+}
+@media (min-width: 1025px) { /* big landscape tablets, laptops, and desktops */
+}
+@media (min-width: 1281px) { /* hi-res laptops and desktops */
+}
 </style>

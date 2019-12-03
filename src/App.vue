@@ -151,7 +151,6 @@ a {
     }
     .heading {
       margin-bottom: 35px;
-      font-size: 3em;
       font-weight: 300;
       text-align: center;
     }
@@ -177,4 +176,52 @@ footer { text-align: center; padding: 20px 0; }
 .fade-quick-enter, .fade-leave-to { opacity: 0; }
 @keyframes rotate { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
 @keyframes fadeInOut { 0% { opacity: 1 } 50% { opacity: 0 } 100% { opacity: 1 } }
+
+@media (min-width: 320px)  {
+  #app header { text-align: center; }
+  .navigation .menu {
+    flex: 1;
+    .header-button {
+      display: flex;
+      justify-content: center;
+    }
+  }
+  .page {
+    .top-wrapper {
+      padding-left: 0;
+      padding-right: 0;
+      .heading {
+        font-size: 2em;
+      }
+    }
+  }
+  /* smartphones, iPhone, portrait 480x320 phones */
+}
+@media (min-width: 481px)  { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */
+}
+@media (min-width: 641px)  { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */
+  .page {
+    .top-wrapper {
+      padding-left: 60px;
+      padding-right: 60px;
+      .heading {
+        font-size: 3em;
+      }
+    }
+  }
+}
+@media (min-width: 961px)  { /* tablet, landscape iPad, lo-res laptops ands desktops */
+  #app header { text-align: initial; }
+  .navigation .menu {
+    flex: initial;
+    .header-button {
+      display: inline-flex;
+      justify-content: initial;
+    }
+  }
+}
+@media (min-width: 1025px) { /* big landscape tablets, laptops, and desktops */
+}
+@media (min-width: 1281px) { /* hi-res laptops and desktops */
+}
 </style>

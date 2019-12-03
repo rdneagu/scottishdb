@@ -131,7 +131,7 @@ export default {
       border-radius: 4px;
       background-color: rgba($bg-blue, .4);
       .constituencies-title {
-        display: inline-block;
+        display: block;
         padding: 2px 4px;
       }
       .constituencies-wrapper {
@@ -144,7 +144,6 @@ export default {
           flex-flow: row wrap;
           .constituency {
             flex: 1;
-            min-width: 350px;
             margin: 10px;
           }
         }
@@ -156,7 +155,8 @@ export default {
     border-top: 1px solid $border-blue;
     .brief-stats {
       display: flex;
-      justify-content: space-between;
+      flex-flow: row wrap;
+      align-items: center;
       .stats-count > * {
         display: inline-block;
         padding: 0 10px;
@@ -175,20 +175,14 @@ export default {
       flex-flow: row wrap;
       margin: 20px 0;
       aside {
-        min-width: 450px;
         flex: 1;
         display: flex;
         align-items: center;
-        padding: 25px;
-        margin: 40px;
+        justify-content: center;
         border-radius: 8px;
         background-color: lighten($bg-blue-2, 5%);
-        .icon {
-          font-size: 10em;
-        }
         .text {
           margin: 0 50px;
-          font-size: 1.8em;
           font-weight: 300;
         }
       }
@@ -198,5 +192,93 @@ export default {
     background-color: lighten($bg-blue, 4%);
     height: 250px;
   }
+}
+
+@media (min-width: 320px)  {
+  .home {
+    .top-wrapper {
+      .constituencies {
+        .constituencies-title { text-align: center; }
+        .constituencies-wrapper {
+          .constituencies-group-by-2 {
+            .constituency { min-width: 230px; }
+          }
+        }
+      }
+    }
+    .bottom-wrapper {
+      padding-left: 0;
+      padding-right: 0;
+      .brief-stats {
+        justify-content: center;
+        .stats-count {
+          margin-top: 5px;
+        }
+      }
+      .brief-about-us {
+        aside {
+          flex-flow: row wrap;
+          margin: 5px;
+          padding: 5px;
+          .icon {
+            font-size: 4em;
+          }
+          .text {
+            margin: 0 20px;
+            font-size: 1.2em;
+          }
+        }
+      }
+    }
+  }
+  /* smartphones, iPhone, portrait 480x320 phones */
+}
+@media (min-width: 481px)  { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */
+}
+@media (min-width: 641px)  { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */
+  .home {
+    .top-wrapper {
+      .constituencies {
+        .constituencies-title { text-align: initial; }
+        .constituencies-wrapper {
+          .constituencies-group-by-2 {
+            .constituency { min-width: 350px; }
+          }
+        }
+      }
+    }
+    .bottom-wrapper {
+      padding-left: 60px;
+      padding-right: 60px;
+      .brief-stats {
+        justify-content: space-between;
+        .stats-count {
+          margin-top: 0;
+        }
+      }
+      .brief-about-us {
+        aside {
+          flex-flow: row nowrap;
+          min-width: 450px;
+          margin: 40px;
+          padding: 25px;
+          .icon {
+            font-size: 10em;
+          }
+          .text {
+            margin: 0 50px;
+            font-size: 1.8em;
+            font-weight: 300;
+          }
+        }
+      }
+    }
+  }
+}
+@media (min-width: 961px)  { /* tablet, landscape iPad, lo-res laptops ands desktops */
+}
+@media (min-width: 1025px) { /* big landscape tablets, laptops, and desktops */
+}
+@media (min-width: 1281px) { /* hi-res laptops and desktops */
 }
 </style>
