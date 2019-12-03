@@ -24,12 +24,12 @@
             </div>
           </aside>
           <div class="cities-wrapper">
-            <ul v-if="getFiltered.length > 0" class="cities">
+            <ul v-if="getFiltered.length > 0" class="cities-result">
               <li v-for="city in getPage" class="city" :key="city.Region">
                 <label class="city-name">{{ city.Region }}</label>
               </li>
             </ul>
-            <div v-else class="cities">
+            <div v-else class="cities-result">
               <div class="no-result">No results have been found matching your request!</div>
             </div>
             <div v-if="getFiltered.length > 1" class="page-wrapper">
@@ -262,7 +262,7 @@ export default {
         flex: 1;
         display: flex;
         flex-direction: column;
-        .cities {
+        .cities-result {
           flex: 1;
           margin: 0;
           padding: 0;
@@ -276,15 +276,14 @@ export default {
           }
           li {
             display: flex;
-            height: 200px;
             position: relative;
             align-items: center;
             justify-content: center;
             background-color: rgba($bg-blue, .4);
             border: 1px solid $border-blue;
             margin: 40px 0;
-            font-size: 4em;
             font-weight: 300;
+            word-break: break-all;
             &:before {
               content: "";
               position: absolute;
@@ -339,5 +338,49 @@ export default {
       }
     }
   }
+}
+
+@media (min-width: 320px)  { /* smartphones, iPhone, portrait 480x320 phones */
+  .cities {
+    .top-wrapper {
+      .navigator .search-city-wrapper .input-wrapper label {
+        display: none;
+      }
+      .content-wrapper {
+        .navigator {
+          display: none;
+        }
+        .cities-wrapper .cities-result li {
+          font-size: 1.5em;
+          height: 120px;
+        }
+      }
+    }
+  }
+}
+@media (min-height: 0px) {
+  .cities .top-wrapper .content-wrapper .navigator { display: none; }
+}
+@media (min-width: 481px) and (min-height: 800px)  { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */
+  .cities .top-wrapper .content-wrapper .navigator { display: block; }
+}
+@media (min-width: 641px)  { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */
+}
+@media (min-width: 961px)  { /* tablet, landscape iPad, lo-res laptops ands desktops */
+  .cities {
+    .top-wrapper {
+      .navigator .search-cities-wrapper .input-wrapper label {
+        display: flex;
+      }
+      .content-wrapper {
+        font-size: 4em;
+        height: 200px;
+      }
+    }
+  }
+}
+@media (min-width: 1025px) { /* big landscape tablets, laptops, and desktops */
+}
+@media (min-width: 1281px) { /* hi-res laptops and desktops */
 }
 </style>

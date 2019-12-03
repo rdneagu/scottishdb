@@ -6,19 +6,7 @@ Vue.use(VueRouter);
 
 const routes = [
   { path: '/', name: 'home', component: Home },
-  {
-    path: '/constituencies',
-    name: 'constituencies',
-    component: () => import('../views/Constituencies.vue'),
-    children: [
-      {
-        path: ':id',
-        name: 'constituencies.id',
-        component: () => import('../views/Constituencies_Id.vue'),
-        props: true,
-      },
-    ],
-  },
+  { path: '/constituencies', name: 'constituencies', component: () => import('../views/Constituencies.vue') },
   { path: '/cities', name: 'cities', component: () => import('../views/Cities.vue') },
   {
     path: '/occupations',

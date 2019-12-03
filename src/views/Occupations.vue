@@ -1,22 +1,22 @@
 <template>
   <transition name="fade" mode="out-in">
     <Loading v-if="!$store.state.loading.ready || $store.state.loading.error" />
-    <div v-else class="cities">
+    <div v-else class="occupations">
       <div class="top-wrapper">
         <div class="bg-city"></div>
         <div class="heading">Search for occupations</div>
         <aside class="navigator">
-          <div class="search-city-wrapper">
-            <div class="input-wrapper search-city">
-              <label for="city">Enter occupation name/part of name:</label>
-              <input type="text" name="city" id="city" placeholder="occupation name (e.g: Software Developer)" v-model="occupation" />
+          <div class="search-occupation-wrapper">
+            <div class="input-wrapper search-occupation">
+              <label for="occupation">Enter occupation name/part of name:</label>
+              <input type="text" name="occupation" id="occupation" placeholder="occupation name (e.g: Software Developer)" v-model="occupation" />
             </div>
             <BorderedButton id="find-occupation-button" size="sm" icon="search" :href="searchHref">Search</BorderedButton>
           </div>
         </aside>
         <div class="content-wrapper">
           <div class="occupation-wrapper">
-            <div v-if="soc.length > 0" class="occupation">
+            <div v-if="soc.length > 0" class="occupation-result">
               <label class="title">{{ getOccupation.occupationTitle }}</label>
               <div class="charts">
                 <div class="cat cat1">
@@ -45,7 +45,7 @@
                 </div>
               </div>
             </div>
-            <div v-else-if="soc.length <= 0 && query.search" class="occupation">
+            <div v-else-if="soc.length <= 0 && query.search" class="occupation-result">
               <div class="no-result">No results have been found matching your request!</div>
             </div>
             <div v-if="soc.length > 1" class="page-wrapper">
@@ -484,7 +484,7 @@ export default {
 <style lang="scss">
 @import '@/scss/_colours.scss';
 
-.cities {
+.occupations {
   .top-wrapper {
     display: flex;
     flex-direction: column;
@@ -494,10 +494,8 @@ export default {
       border-radius: 4px;
       background-color: rgba($bg-blue, .4);
       padding: 20px 40px;
-      margin: 0 20%;
-      .search-city-wrapper {
+      .search-occupation-wrapper {
         display: flex;
-        align-items: center;
         flex: 1;
         .input-wrapper {
           flex: 1;
@@ -524,9 +522,6 @@ export default {
             margin: 0;
           }
         }
-        #find-occupation-button {
-          margin-left: 10px;
-        }
       }
     }
     .content-wrapper {
@@ -541,7 +536,7 @@ export default {
         flex: 1;
         display: flex;
         flex-direction: column;
-        .occupation {
+        .occupation-result {
           flex: 1;
           margin: 0;
           padding: 20px 0;
@@ -659,5 +654,53 @@ export default {
       }
     }
   }
+}
+@media (min-width: 320px)  { /* smartphones, iPhone, portrait 480x320 phones */
+  .occupations {
+    .top-wrapper {
+      .navigator {
+        margin: 0;
+        .search-occupation-wrapper {
+          flex-direction: column;
+          align-items: stretch;
+          .input-wrapper label {
+            display: none;
+          }
+          #find-occupation-button {
+            margin: 10px 0 0 0;
+            align-self: center;
+          }
+        }
+      }
+    }
+  }
+}
+@media (min-width: 481px) and (min-height: 800px)  { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */
+}
+@media (min-width: 641px)  { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */
+}
+@media (min-width: 961px)  { /* tablet, landscape iPad, lo-res laptops ands desktops */
+  .occupations {
+    .top-wrapper {
+      .navigator {
+        margin: 0 5%;
+        .search-occupation-wrapper {
+          flex-direction: row;
+          align-items: center;
+          .input-wrapper label {
+            display: flex;
+          }
+          #find-occupation-button {
+            margin: 0 0 0 10px;
+            align-self: initial;
+          }
+        }
+      }
+    }
+  }
+}
+@media (min-width: 1025px) { /* big landscape tablets, laptops, and desktops */
+}
+@media (min-width: 1281px) { /* hi-res laptops and desktops */
 }
 </style>

@@ -341,4 +341,40 @@ export default {
     }
   }
 }
+
+@media (min-width: 320px)  { /* smartphones, iPhone, portrait 480x320 phones */
+  .constituencies {
+    .top-wrapper {
+      .navigator .search-constituency-wrapper .input-wrapper label {
+        display: none;
+      }
+      .content-wrapper {
+        .navigator {
+          display: none;
+        }
+      }
+    }
+  }
+}
+@media (min-height: 0px) {
+  .constituencies .top-wrapper .content-wrapper .navigator { display: none; }
+}
+@media (min-width: 481px) and (min-height: 800px)  { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */
+  .constituencies .top-wrapper .content-wrapper .navigator { display: block; }
+}
+@media (min-width: 641px)  { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */
+}
+@media (min-width: 961px)  { /* tablet, landscape iPad, lo-res laptops ands desktops */
+  .constituencies {
+    .top-wrapper {
+      .navigator .search-constituency-wrapper .input-wrapper label {
+        display: flex;
+      }
+    }
+  }
+}
+@media (min-width: 1025px) { /* big landscape tablets, laptops, and desktops */
+}
+@media (min-width: 1281px) { /* hi-res laptops and desktops */
+}
 </style>

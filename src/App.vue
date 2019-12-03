@@ -110,7 +110,6 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 10%;
   background-color: $bg-blue-2;
   border: 1px solid $border-blue;
   border-left: 0;
@@ -179,17 +178,24 @@ footer { text-align: center; padding: 20px 0; }
 
 @media (min-width: 320px)  {
   #app header { text-align: center; }
-  .navigation .menu {
-    flex: 1;
-    .header-button {
-      display: flex;
-      justify-content: center;
+  .navigation {
+    flex-direction: column;
+    padding: 0 5px;
+    .menu-dropdown {
+      align-self: center;
+    }
+    .menu {
+      flex: 1;
+      .header-button {
+        display: flex;
+        justify-content: center;
+      }
     }
   }
   .page {
     .top-wrapper {
-      padding-left: 0;
-      padding-right: 0;
+      padding-left: 5px;
+      padding-right: 5px;
       .heading {
         font-size: 2em;
       }
@@ -212,11 +218,18 @@ footer { text-align: center; padding: 20px 0; }
 }
 @media (min-width: 961px)  { /* tablet, landscape iPad, lo-res laptops ands desktops */
   #app header { text-align: initial; }
-  .navigation .menu {
-    flex: initial;
-    .header-button {
-      display: inline-flex;
-      justify-content: initial;
+  .navigation {
+    flex-direction: row;
+    padding: 0 10%;
+    .menu-dropdown {
+      align-self: initial;
+    }
+    .menu {
+      flex: initial;
+      .header-button {
+        display: inline-flex;
+        justify-content: initial;
+      }
     }
   }
 }

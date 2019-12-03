@@ -42,7 +42,6 @@
       </template>
       <div class="more-wrapper">
         <BorderedButton id="search-button" :mail="contactHref" icon="contact-us" size="sm">Contact</BorderedButton>
-        <OpaqueButton id="advanced-button" :href="constituencyHref" icon="ellipsis-h">More</OpaqueButton>
       </div>
     </div>
   </div>
@@ -51,12 +50,10 @@
 <script>
 import _ from 'lodash';
 
-import OpaqueButton from '@/components/OpaqueButton.vue';
 import BorderedButton from '@/components/BorderedButton.vue';
-// :style="{ backgroundImage: `url(${this.member.PhotoURL})` } "
+
 export default {
   components: {
-    OpaqueButton,
     BorderedButton,
   },
   props: ['id', 'zone', 'size', 'distance'],
@@ -92,9 +89,6 @@ export default {
     },
     getZone() {
       return this.zone || this.region.Name;
-    },
-    constituencyHref() {
-      return { name: 'constituencies.id', params: { id: this.id } };
     },
     contactHref() {
       if (!this.contact) { return undefined; }
@@ -158,11 +152,6 @@ export default {
   &.full {
     .body {
       display: grid;
-      grid-template-areas: "avatar details more";
-      grid-template-columns: 128px 1fr min-content;
-      grid-template-columns: 128px 1fr min-content;
-      grid-auto-rows: 128px;
-      grid-column-gap: 20px;
       .avatar {
         position: relative;
         grid-area: avatar;
@@ -170,7 +159,6 @@ export default {
         background-size: cover;
         border-radius: 100%;
         border: 2px solid $border-blue;
-        height: 128px;
         overflow: hidden;
         img {
           position: absolute;
@@ -183,11 +171,6 @@ export default {
         grid-area: details;
         display: grid;
         justify-items: center;
-        grid-template-areas: "constituency constituency"
-                             "        left        right";
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: min-content 1fr;
-
         .constituency-name {
           grid-area: constituency;
           font-size: 1.5em;
@@ -199,6 +182,7 @@ export default {
           padding: 15px;
           .line {
             margin: 2px 0;
+            word-break: break-all;
             label {
               color: darken($text-blue, 15%);
             }
@@ -210,11 +194,11 @@ export default {
         }
         .right {
           grid-area: right;
-          justify-self: right;
         }
       }
       .more-wrapper {
         grid-area: more;
+        align-self: center;
         flex-direction: column;
         margin: 0;
       }
@@ -229,5 +213,58 @@ export default {
       justify-content: center;
     }
   }
+}
+
+@media (min-width: 320px)  { /* smartphones, iPhone, portrait 480x320 phones */
+  .constituency.full {
+    .body {
+      grid-template-areas:
+        "avatar more"
+        "details details";
+      grid-template-columns: 64px 1fr;
+      grid-template-rows: 64px 1fr;
+      grid-row-gap: 20px;
+      grid-column-gap: 0;
+      .details {
+        grid-template-areas:
+          "constituency"
+          "left"
+          "right";
+        grid-template-columns: 1fr;
+        grid-template-rows: min-content min-content;
+        .panel.right { justify-self: left; }
+      }
+      .more-wrapper { justify-self: right; }
+    }
+  }
+}
+@media (min-width: 481px)  { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */
+}
+@media (min-width: 641px)  { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */
+}
+@media (min-width: 961px)  { /* tablet, landscape iPad, lo-res laptops ands desktops */
+  .constituency.full {
+    .body {
+      grid-template-areas: "avatar details more";
+      grid-template-columns: 128px 1fr min-content;
+      grid-template-rows: 128px;
+      grid-row-gap: 0;
+      grid-column-gap: 20px;
+      .details {
+        grid-template-areas: "constituency constituency"
+                             "        left        right";
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: min-content 1fr;
+
+        .panel .line { word-break: break-all; }
+        .panel.right { justify-self: right; }
+      }
+      .more-wrapper { justify-self: initial; }
+    }
+  }
+}
+@media (min-width: 1025px) { /* big landscape tablets, laptops, and desktops */
+}
+@media (min-width: 1281px) { /* hi-res laptops and desktops */
 }
 </style>

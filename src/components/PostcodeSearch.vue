@@ -11,8 +11,8 @@
         <label v-if="!compact" for="distance">DISTANCE</label>
         <input type="text" name="distance" id="distance" @blur="blurDistance" @focus="focusDistance" v-model="miles"/>
       </div>
-      <BorderedButton v-if="compact" id="search-button" :href="searchHref" icon="search" size="sm">Search</BorderedButton>
     </div>
+    <BorderedButton v-if="compact" id="search-button" :href="searchHref" icon="search" size="sm">Search</BorderedButton>
     <div v-if="!compact" class="control-wrapper">
       <OpaqueButton id="advanced-button" icon="cog">Advanced</OpaqueButton>
       <BorderedButton id="search-button" :href="searchHref" icon="search">Search</BorderedButton>
@@ -123,12 +123,15 @@ export default {
     }
   }
   &.compact {
-    width: 50%;
-    .postcode-search .input-wrapper {
-      border-radius: 4px;
-      input { height: 30px; }
+    display: flex;
+    min-width: 50%;
+    .postcode-search {
+      flex: 1;
+      .input-wrapper {
+        border-radius: 4px;
+        input { height: 30px; }
+      }
     }
-    #search-button { margin-left: 10px; }
   }
   .postcode-search {
     display: flex;
@@ -142,6 +145,7 @@ export default {
       border: 1px solid $text-blue;
       text-align: center;
       &.postcode {
+        flex: 1;
         width: 75%;
         border-top-right-radius: 0px;
         border-bottom-right-radius: 0px;
@@ -212,8 +216,24 @@ export default {
       .input-wrapper.distance input { font-size: 1.4em; }
     }
   }
+  .postcode-wrapper.compact {
+    flex-direction: column;
+    align-self: stretch;
+    margin: 0 5%;
+    .postcode-search {
+      margin-top: 10px;
+      .input-wrapper .postcode { width: initial; }
+    }
+    #search-button {
+      margin: 10px 0;
+      align-self: center;
+    }
+  }
 }
 @media (min-width: 481px)  { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */
+  .postcode-wrapper.compact {
+    margin: 0 10%;
+  }
 }
 @media (min-width: 641px)  { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */
   .postcode-wrapper:not(.compact) {
@@ -226,9 +246,25 @@ export default {
       .input-wrapper.distance input { font-size: 2em; }
     }
   }
+  .postcode-wrapper.compact {
+    margin: 0 20%;
+  }
 }
 @media (min-width: 961px)  { /* tablet, landscape iPad, lo-res laptops ands desktops */
   header { text-align: initial; }
+  .postcode-wrapper.compact {
+    flex-direction: row;
+    align-self: initial;
+    margin: 0;
+    .postcode-search {
+      margin: 0;
+      .input-wrapper .postcode { width: 75%; }
+    }
+    #search-button {
+      margin-left: 10px;
+      align-self: initial;
+    }
+  }
 }
 @media (min-width: 1025px) { /* big landscape tablets, laptops, and desktops */
 }
