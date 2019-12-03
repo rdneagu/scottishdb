@@ -142,7 +142,7 @@ export default {
       display: flex;
       align-items: center;
       align-self: stretch;
-      justify-content: space-between;
+      justify-content: center;
       margin-top: 20px;
       > * {
         display: inline-flex;
@@ -216,6 +216,7 @@ export default {
 }
 
 @media (min-width: 320px)  { /* smartphones, iPhone, portrait 480x320 phones */
+  .constituency { min-width: 230px; }
   .constituency.full {
     .body {
       grid-template-areas:
@@ -243,6 +244,7 @@ export default {
 @media (min-width: 641px)  { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */
 }
 @media (min-width: 961px)  { /* tablet, landscape iPad, lo-res laptops ands desktops */
+  .constituency { min-width: 350px; }
   .constituency.full {
     .body {
       grid-template-areas: "avatar details more";

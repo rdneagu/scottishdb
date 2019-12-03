@@ -152,7 +152,6 @@ export default {
           };
         })
         .value());
-      console.log(this.census);
       // End the loading process
       this.$store.commit('loadingSuccess');
     },
@@ -223,7 +222,6 @@ export default {
         overflow: auto;
         .constituency {
           flex: 1;
-          min-width: 350px;
           margin: 10px;
           &:first-child { margin-left: 0; }
           &:last-child { margin-right: 0; }

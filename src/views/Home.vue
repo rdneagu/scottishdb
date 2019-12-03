@@ -83,7 +83,6 @@ export default {
       await this.load();
     },
     async load() {
-      // console.log(await axios.get('/api/getPostcodeInRadius.php'));
       // Start the loading process
       // Load cities API and parse the result
       this.$store.commit('loadingStart');
@@ -199,11 +198,6 @@ export default {
     .top-wrapper {
       .constituencies {
         .constituencies-title { text-align: center; }
-        .constituencies-wrapper {
-          .constituencies-group-by-2 {
-            .constituency { min-width: 230px; }
-          }
-        }
       }
     }
     .bottom-wrapper {
@@ -240,11 +234,6 @@ export default {
     .top-wrapper {
       .constituencies {
         .constituencies-title { text-align: initial; }
-        .constituencies-wrapper {
-          .constituencies-group-by-2 {
-            .constituency { min-width: 350px; }
-          }
-        }
       }
     }
     .bottom-wrapper {

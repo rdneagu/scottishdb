@@ -221,7 +221,7 @@ export default {
     align-self: stretch;
     margin: 0 5%;
     .postcode-search {
-      margin-top: 10px;
+      margin-top: 4px;
       .input-wrapper .postcode { width: initial; }
     }
     #search-button {

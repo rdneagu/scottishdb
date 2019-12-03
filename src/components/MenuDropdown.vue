@@ -57,14 +57,16 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    margin-top: 8px;
-    padding: 8px;
     background-color: darken($bg-blue, 2%);
     box-shadow: 0 10px 40px rgba(black, .5);
     border: 1px solid black;
     border-radius: 2px;
     overflow: hidden;
     z-index: 2;
+    .header-button {
+      margin: 0;
+      padding: 10px 20px;
+    }
   }
 }
 </style>

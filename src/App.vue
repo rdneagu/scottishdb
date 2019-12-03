@@ -5,7 +5,7 @@
         <span class="logo-text">Scottish DB</span>
         <i class="icon icon-database"></i>
       </router-link>
-      <div v-if="isHomePage" class="navigation">
+      <div v-if="isHomePage && $resize && $mq.above(961)" class="navigation">
         <div class="menu">
           <HeaderButton v-bind="menuDropdown[0]">{{ menuDropdown[0].text }}</HeaderButton>
           <HeaderButton v-bind="menuDropdown[1]">{{ menuDropdown[1].text }}</HeaderButton>
@@ -14,10 +14,10 @@
           <HeaderButton v-bind="menuDropdown[4]">{{ menuDropdown[4].text }}</HeaderButton>
         </div>
       </div>
-      <div v-else class="navigation">
+      <div v-else class="navigation compact">
         <MenuDropdown icon="menu" :dropdown="menuDropdown">Menu</MenuDropdown>
-        <PostcodeSearch :compact="true"></PostcodeSearch>
-        <div class="dummy-element"></div>
+        <PostcodeSearch v-if="!isHomePage" :compact="true"></PostcodeSearch>
+        <div v-if="!isHomePage" class="dummy-element"></div>
       </div>
     </header>
     <transition name="fade-quick" mode="out-in">
@@ -56,7 +56,6 @@ export default {
         { text: 'Constituencies', icon: 'constituencies', href: { name: 'constituencies' } },
         { text: 'Cities', icon: 'cities', href: { name: 'cities' } },
         { text: 'Occupations', icon: 'occupations', href: { name: 'occupations' } },
-        { text: 'About Us', icon: 'about-us', href: { name: 'about-us' } },
         { text: 'Contact Us', icon: 'contact-us', href: { name: 'contact-us' } },
       ],
     };
@@ -180,6 +179,7 @@ footer { text-align: center; padding: 20px 0; }
   #app header { text-align: center; }
   .navigation {
     flex-direction: column;
+    justify-content: center;
     padding: 0 5px;
     .menu-dropdown {
       align-self: center;
@@ -220,6 +220,7 @@ footer { text-align: center; padding: 20px 0; }
   #app header { text-align: initial; }
   .navigation {
     flex-direction: row;
+    justify-content: initial;
     padding: 0 10%;
     .menu-dropdown {
       align-self: initial;
@@ -231,6 +232,9 @@ footer { text-align: center; padding: 20px 0; }
         justify-content: initial;
       }
     }
+  }
+  .navigation.compact {
+    justify-content: space-between;
   }
 }
 @media (min-width: 1025px) { /* big landscape tablets, laptops, and desktops */

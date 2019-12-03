@@ -118,11 +118,11 @@ export default {
   },
   methods: {
     async loadInReadyState() {
-      if (!this.$store.getters.isLoadingInReadyState) { return; }
+      if (!this.$store.getters.isLoadingInReadyState || this.cities.length !== 0) { return; }
       await this.load();
     },
     async load() {
-      if (this.cities.length !== 0) { return; }
+      if (this.vAlphabetObserver === null) { this.vAlphabetObserverInit(); }
       // Start the loading process
       // Load cities API and parse the result
       this.$store.commit('loadingStart');
@@ -154,17 +154,17 @@ export default {
         this.vAlphabetVisibile = !entry.isIntersecting;
       });
     },
+    vAlphabetObserverInit() {
+      this.$nextTick(() => {
+        this.vAlphabetObserver = new IntersectionObserver(this.vAlphabetVisibilityChange, {});
+        this.vAlphabetObserver.observe(this.$refs.hAlphabet);
+      });
+    },
   },
   watch: {
     '$store.state.loading.ready': async function (to, from) { // eslint-disable-line
       if (to === true && from === false) {
         await this.loadInReadyState();
-      }
-      if (to === true) {
-        this.$nextTick(() => {
-          this.vAlphabetObserver = new IntersectionObserver(this.vAlphabetVisibilityChange, {});
-          this.vAlphabetObserver.observe(this.$refs.hAlphabet);
-        });
       }
     },
   },
@@ -373,8 +373,10 @@ export default {
         display: flex;
       }
       .content-wrapper {
-        font-size: 4em;
-        height: 200px;
+        .cities-wrapper .cities-result li {
+          font-size: 4em;
+          height: 200px;
+        }
       }
     }
   }

@@ -25,13 +25,13 @@
             </div>
           </aside>
           <div class="constituencies-wrapper">
-            <div v-if="getFiltered.length > 0" class="constituencies">
+            <div v-if="getFiltered.length > 0" class="constituencies-result">
               <Constituency class="constituency" v-for="constituency in getPage"
                 :id="constituency.ID"
                 :key="constituency.ID"
                 size="full"></Constituency>
             </div>
-            <div v-else class="constituencies">
+            <div v-else class="constituencies-result">
               <div class="no-result">No results have been found matching your request!</div>
             </div>
             <div v-if="getFiltered.length > 1" class="page-wrapper">
@@ -121,10 +121,11 @@ export default {
   },
   methods: {
     async loadInReadyState() {
-      if (!this.$store.getters.isLoadingInReadyState) { return; }
+      if (!this.$store.getters.isLoadingInReadyState || this.constituencies.length !== 0) { return; }
       await this.load();
     },
     async load() {
+      if (this.vAlphabetObserver === null) { this.vAlphabetObserverInit(); }
       // Start the loading process
       // Load constituencies API and parse the result
       this.$store.commit('loadingStart');
@@ -160,17 +161,17 @@ export default {
         this.vAlphabetVisibile = !entry.isIntersecting;
       });
     },
+    vAlphabetObserverInit() {
+      this.$nextTick(() => {
+        this.vAlphabetObserver = new IntersectionObserver(this.vAlphabetVisibilityChange, {});
+        this.vAlphabetObserver.observe(this.$refs.hAlphabet);
+      });
+    },
   },
   watch: {
     '$store.state.loading.ready': async function (to, from) { // eslint-disable-line
       if (to === true && from === false) {
         await this.loadInReadyState();
-      }
-      if (to === true && !this.$route.params.id) {
-        this.$nextTick(() => {
-          this.vAlphabetObserver = new IntersectionObserver(this.vAlphabetVisibilityChange, {});
-          this.vAlphabetObserver.observe(this.$refs.hAlphabet);
-        });
       }
     },
   },
@@ -268,7 +269,7 @@ export default {
         flex: 1;
         display: flex;
         flex-direction: column;
-        .constituencies {
+        .constituencies-result {
           flex: 1;
           margin: 0;
           padding: 0;

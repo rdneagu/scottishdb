@@ -20,32 +20,32 @@
               <label class="title">{{ getOccupation.occupationTitle }}</label>
               <div class="charts">
                 <div class="cat cat1">
-                  <apexchart class="apexchart" width="400" type="line" v-bind="readAnnualChange"></apexchart>
-                  <apexchart class="apexchart" width="400" type="line" v-bind="readUnemploymentRateOverall"></apexchart>
-                  <apexchart class="apexchart" width="400" type="line" v-bind="readUnemploymentRateByGender"></apexchart>
+                  <apexchart class="apexchart" width="350" type="line" v-bind="readAnnualChange"></apexchart>
+                  <apexchart class="apexchart" width="350" type="line" v-bind="readUnemploymentRateOverall"></apexchart>
+                  <apexchart class="apexchart" width="350" type="line" v-bind="readUnemploymentRateByGender"></apexchart>
                 </div>
                 <div class="cat cat2">
-                  <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedHoursOverall"></apexchart>
-                  <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedHoursByGender"></apexchart>
-                  <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedHoursByStatus"></apexchart>
+                  <apexchart class="apexchart" width="350" type="bar" v-bind="readEstimatedHoursOverall"></apexchart>
+                  <apexchart class="apexchart" width="350" type="bar" v-bind="readEstimatedHoursByGender"></apexchart>
+                  <apexchart class="apexchart" width="350" type="bar" v-bind="readEstimatedHoursByStatus"></apexchart>
                 </div>
                 <div class="cat cat3">
-                  <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedPayOverall"></apexchart>
-                  <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedPayByGender"></apexchart>
-                  <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedPayByStatus"></apexchart>
+                  <apexchart class="apexchart" width="350" type="bar" v-bind="readEstimatedPayOverall"></apexchart>
+                  <apexchart class="apexchart" width="350" type="bar" v-bind="readEstimatedPayByGender"></apexchart>
+                  <apexchart class="apexchart" width="350" type="bar" v-bind="readEstimatedPayByStatus"></apexchart>
                 </div>
                 <div class="cat cat4">
-                  <apexchart class="apexchart" width="400" height="310" type="radialBar" v-bind="readHTF"></apexchart>
-                  <apexchart class="apexchart" width="400" height="310" type="radialBar" v-bind="readSSV"></apexchart>
-                  <apexchart class="apexchart" width="400" height="310" type="radialBar" v-bind="readHTFisSSV"></apexchart>
+                  <apexchart class="apexchart" width="350" height="255" type="radialBar" v-bind="readHTF"></apexchart>
+                  <apexchart class="apexchart" width="350" height="255" type="radialBar" v-bind="readSSV"></apexchart>
+                  <apexchart class="apexchart" width="350" height="255" type="radialBar" v-bind="readHTFisSSV"></apexchart>
                 </div>
                 <div class="cat cat5">
-                  <apexchart class="apexchart" width="400" type="line" v-bind="readEmploymentTrendByGender"></apexchart>
-                  <apexchart class="apexchart" width="400" type="line" v-bind="readEmploymentTrendByStatus"></apexchart>
+                  <apexchart class="apexchart" width="350" type="line" v-bind="readEmploymentTrendByGender"></apexchart>
+                  <apexchart class="apexchart" width="350" type="line" v-bind="readEmploymentTrendByStatus"></apexchart>
                 </div>
               </div>
             </div>
-            <div v-else-if="soc.length <= 0 && query.search" class="occupation-result">
+            <div v-else-if="noResult" class="occupation-result">
               <div class="no-result">No results have been found matching your request!</div>
             </div>
             <div v-if="soc.length > 1" class="page-wrapper">
@@ -86,6 +86,7 @@ export default {
       occupation: '',
       soc: [],
       page: 0,
+      noResult: false,
     };
   },
   async mounted() {
@@ -141,7 +142,7 @@ export default {
           series[0].data.push(data.hours);
         })
         .commit();
-      return this.lineChartOptions('Estimated Hours (hrs)', categories, _.compact(series));
+      return this.lineChartOptions('Est. Hours (hrs)', categories, _.compact(series));
     },
     readEstimatedHoursByGender() {
       const categories = [];
@@ -163,7 +164,7 @@ export default {
           });
         })
         .commit();
-      return this.lineChartOptions('Estimated Hours by Gender (hrs)', categories, _.compact(series));
+      return this.lineChartOptions('Est. Hours by Gender (hrs)', categories, _.compact(series));
     },
     readEstimatedHoursByStatus() {
       const categories = [];
@@ -185,7 +186,7 @@ export default {
           });
         })
         .commit();
-      return this.lineChartOptions('Estimated Hours by Employment Status (hrs)', categories, _.compact(series));
+      return this.lineChartOptions('Est. Hours by Employment Status (hrs)', categories, _.compact(series));
     },
     readEstimatedPayOverall() {
       const categories = [];
@@ -204,7 +205,7 @@ export default {
           series[0].data.push(data.estpay);
         })
         .commit();
-      return this.lineChartOptions('Estimated Weekly Pay (£)', categories, _.compact(series));
+      return this.lineChartOptions('Est. Pay (£/week)', categories, _.compact(series));
     },
     readEstimatedPayByGender() {
       const categories = [];
@@ -226,7 +227,7 @@ export default {
           });
         })
         .commit();
-      return this.lineChartOptions('Estimated Weekly Pay by Gender (£)', categories, _.compact(series));
+      return this.lineChartOptions('Est. Pay by Gender (£/week)', categories, _.compact(series));
     },
     readEstimatedPayByStatus() {
       const categories = [];
@@ -248,7 +249,7 @@ export default {
           });
         })
         .commit();
-      return this.lineChartOptions('Estimated Weekly Pay by Employment Status (£)', categories, _.compact(series));
+      return this.lineChartOptions('Est. Pay by Employment Status (£/week)', categories, _.compact(series));
     },
     readEmploymentTrendByGender() {
       const categories = [];
@@ -349,15 +350,18 @@ export default {
   methods: {
     async loadInReadyState() {
       if (!this.$store.getters.isLoadingInReadyState || this.soc.length !== 0) { return; }
+      if (this.noResult) { return; }
       await this.load();
     },
     async load() {
-      if (_.isEmpty(this.query.search)) { return; }
       // Start the loading process
       // Load occupations API and parse the result
       this.$store.commit('loadingStart');
       this.$store.commit('loadingMessage', { message: 'Loading occupations' });
       const soc = await axios.get(`http://api.lmiforall.org.uk/api/v1/soc/search?q=${this.query.search}`);
+      if (soc.data.length === 0) {
+        this.noResult = true;
+      }
       this.soc = await Promise.all(_.chain(soc.data)
         .map(async (occupation) => {
           const annualChanges = await axios.get(`http://api.lmiforall.org.uk/api/v1/ashe/annualChanges?soc=${occupation.soc}&filters=region%3A11`);
@@ -403,7 +407,6 @@ export default {
           };
         })
         .value());
-      console.log(this.soc);
       // End the loading process
       this.$store.commit('loadingSuccess');
     },
@@ -655,6 +658,7 @@ export default {
     }
   }
 }
+
 @media (min-width: 320px)  { /* smartphones, iPhone, portrait 480x320 phones */
   .occupations {
     .top-wrapper {
