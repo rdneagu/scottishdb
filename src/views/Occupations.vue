@@ -17,17 +17,32 @@
         <div class="content-wrapper">
           <div class="occupation-wrapper">
             <div v-if="soc.length > 0" class="occupation">
-              {{ soc[page].occupationTitle }}
+              <label class="title">{{ getOccupation.occupationTitle }}</label>
               <div class="charts">
-                <apexchart class="apexchart" width="400" type="line" v-bind="readAnnualChange"></apexchart>
-                <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedHoursOverall"></apexchart>
-                <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedHoursByGender"></apexchart>
-                <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedHoursByStatus"></apexchart>
-                <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedPayOverall"></apexchart>
-                <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedPayByGender"></apexchart>
-                <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedPayByStatus"></apexchart>
-                <apexchart class="apexchart" width="400" type="line" v-bind="readEmploymentTrendByGender"></apexchart>
-                <apexchart class="apexchart" width="400" type="line" v-bind="readEmploymentTrendByStatus"></apexchart>
+                <div class="cat cat1">
+                  <apexchart class="apexchart" width="400" type="line" v-bind="readAnnualChange"></apexchart>
+                  <apexchart class="apexchart" width="400" type="line" v-bind="readUnemploymentRateOverall"></apexchart>
+                  <apexchart class="apexchart" width="400" type="line" v-bind="readUnemploymentRateByGender"></apexchart>
+                </div>
+                <div class="cat cat2">
+                  <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedHoursOverall"></apexchart>
+                  <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedHoursByGender"></apexchart>
+                  <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedHoursByStatus"></apexchart>
+                </div>
+                <div class="cat cat3">
+                  <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedPayOverall"></apexchart>
+                  <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedPayByGender"></apexchart>
+                  <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedPayByStatus"></apexchart>
+                </div>
+                <div class="cat cat4">
+                  <apexchart class="apexchart" width="400" height="310" type="radialBar" v-bind="readHTF"></apexchart>
+                  <apexchart class="apexchart" width="400" height="310" type="radialBar" v-bind="readSSV"></apexchart>
+                  <apexchart class="apexchart" width="400" height="310" type="radialBar" v-bind="readHTFisSSV"></apexchart>
+                </div>
+                <div class="cat cat5">
+                  <apexchart class="apexchart" width="400" type="line" v-bind="readEmploymentTrendByGender"></apexchart>
+                  <apexchart class="apexchart" width="400" type="line" v-bind="readEmploymentTrendByStatus"></apexchart>
+                </div>
               </div>
             </div>
             <div v-else-if="soc.length <= 0 && query.search" class="occupation">
@@ -107,7 +122,7 @@ export default {
           series[0].data.push(data.change);
         })
         .commit();
-      return this.lineChartOptions('Annual Changes to Pay Rate (%)', categories, series);
+      return this.lineChartOptions('Annual Changes to Pay Rate (%)', categories, _.compact(series));
     },
     readEstimatedHoursOverall() {
       const categories = [];
@@ -126,7 +141,7 @@ export default {
           series[0].data.push(data.hours);
         })
         .commit();
-      return this.lineChartOptions('Estimated Hours (hrs)', categories, series);
+      return this.lineChartOptions('Estimated Hours (hrs)', categories, _.compact(series));
     },
     readEstimatedHoursByGender() {
       const categories = [];
@@ -137,17 +152,18 @@ export default {
         .forEach((data, id) => {
           categories.push(data.year);
           _.forEach(data.breakdown, (s) => {
+            const seriesIndex = s.gender - 1;
             if (id === 0) {
-              series[s.gender - 1] = {
-                name: seriesName[s.gender - 1],
+              series[seriesIndex] = {
+                name: seriesName[seriesIndex],
                 data: [],
               };
             }
-            series[s.gender - 1].data.push(s.hours);
+            series[seriesIndex].data.push(s.hours);
           });
         })
         .commit();
-      return this.lineChartOptions('Estimated Hours by Gender (hrs)', categories, series);
+      return this.lineChartOptions('Estimated Hours by Gender (hrs)', categories, _.compact(series));
     },
     readEstimatedHoursByStatus() {
       const categories = [];
@@ -158,17 +174,18 @@ export default {
         .forEach((data, id) => {
           categories.push(data.year);
           _.forEach(data.breakdown, (s) => {
+            const seriesIndex = s.status - 1;
             if (id === 0) {
-              series[s.status - 1] = {
-                name: seriesName[s.status - 1],
+              series[seriesIndex] = {
+                name: seriesName[seriesIndex],
                 data: [],
               };
             }
-            series[s.status - 1].data.push(s.hours);
+            series[seriesIndex].data.push(s.hours);
           });
         })
         .commit();
-      return this.lineChartOptions('Estimated Hours by Employment Status (hrs)', categories, series);
+      return this.lineChartOptions('Estimated Hours by Employment Status (hrs)', categories, _.compact(series));
     },
     readEstimatedPayOverall() {
       const categories = [];
@@ -187,7 +204,7 @@ export default {
           series[0].data.push(data.estpay);
         })
         .commit();
-      return this.lineChartOptions('Estimated Weekly Pay (£)', categories, series);
+      return this.lineChartOptions('Estimated Weekly Pay (£)', categories, _.compact(series));
     },
     readEstimatedPayByGender() {
       const categories = [];
@@ -198,17 +215,18 @@ export default {
         .forEach((data, id) => {
           categories.push(data.year);
           _.forEach(data.breakdown, (s) => {
+            const seriesIndex = s.gender - 1;
             if (id === 0) {
-              series[s.gender - 1] = {
-                name: seriesName[s.gender - 1],
+              series[seriesIndex] = {
+                name: seriesName[seriesIndex],
                 data: [],
               };
             }
-            series[s.gender - 1].data.push(s.estpay);
+            series[seriesIndex].data.push(s.estpay);
           });
         })
         .commit();
-      return this.lineChartOptions('Estimated Weekly Pay by Gender (£)', categories, series);
+      return this.lineChartOptions('Estimated Weekly Pay by Gender (£)', categories, _.compact(series));
     },
     readEstimatedPayByStatus() {
       const categories = [];
@@ -219,17 +237,18 @@ export default {
         .forEach((data, id) => {
           categories.push(data.year);
           _.forEach(data.breakdown, (s) => {
+            const seriesIndex = s.status - 1;
             if (id === 0) {
-              series[s.status - 1] = {
-                name: seriesName[s.status - 1],
+              series[seriesIndex] = {
+                name: seriesName[seriesIndex],
                 data: [],
               };
             }
-            series[s.status - 1].data.push(s.estpay);
+            series[seriesIndex].data.push(s.estpay);
           });
         })
         .commit();
-      return this.lineChartOptions('Estimated Weekly Pay by Employment Status (£)', categories, series);
+      return this.lineChartOptions('Estimated Weekly Pay by Employment Status (£)', categories, _.compact(series));
     },
     readEmploymentTrendByGender() {
       const categories = [];
@@ -240,17 +259,18 @@ export default {
         .forEach((data, id) => {
           categories.push(data.year);
           _.forEach(data.breakdown, (s) => {
+            const seriesIndex = s.code - 1;
             if (id === 0) {
-              series[s.code - 1] = {
-                name: seriesName[s.code - 1],
+              series[seriesIndex] = {
+                name: seriesName[seriesIndex],
                 data: [],
               };
             }
-            series[s.code - 1].data.push(s.employment);
+            series[seriesIndex].data.push(s.employment);
           });
         })
         .commit();
-      return this.lineChartOptions('Employment Trend by Gender (employees)', categories, series);
+      return this.lineChartOptions('Employment Trend by Gender (employees)', categories, _.compact(series));
     },
     readEmploymentTrendByStatus() {
       const categories = [];
@@ -271,7 +291,59 @@ export default {
           });
         })
         .commit();
-      return this.lineChartOptions('Employment Trend by Status (employees)', categories, series);
+      return this.lineChartOptions('Employment Trend by Status (employees)', categories, _.compact(series));
+    },
+    readUnemploymentRateOverall() {
+      const categories = [];
+      const seriesName = ['Overall'];
+      const series = [];
+      _.chain(this.getOccupation.unemploymentRate.overall)
+        .orderBy('year', 'asc')
+        .forEach((data, id) => {
+          categories.push(data.year);
+          if (id === 0) {
+            series[0] = {
+              name: seriesName[0],
+              data: [],
+            };
+          }
+          series[0].data.push(data.unemprate);
+        })
+        .commit();
+      return this.lineChartOptions('Unemployment Rate (%)', categories, _.compact(series));
+    },
+    readUnemploymentRateByGender() {
+      let categories = [];
+      const series = [];
+      _.chain(this.getOccupation.unemploymentRate.byGender)
+        .forEach((data, key) => {
+          const seriesIndex = (key === 'female') ? 1 : 0;
+          const orderedData = _.orderBy(data, 'year', 'asc');
+          series[seriesIndex] = {
+            name: _.startCase(key),
+            data: _.map(orderedData, s => s.unemprate),
+          };
+          if (categories.length === 0) {
+            categories = _.map(orderedData, s => s.year);
+          }
+        })
+        .commit();
+      return this.lineChartOptions('Unemployment Rate by Gender (%)', categories, _.compact(series));
+    },
+    readHTF() {
+      const labels = [this.getOccupation.ess.year.toString()];
+      const series = [this.getOccupation.ess.percentHTF.toFixed(2)];
+      return this.lineChartOptions('Hard to Find (%)', labels, series);
+    },
+    readSSV() {
+      const labels = [this.getOccupation.ess.year.toString()];
+      const series = [this.getOccupation.ess.percentSSV.toFixed(2)];
+      return this.lineChartOptions('Skill Shortage (SSV) (%)', labels, series);
+    },
+    readHTFisSSV() {
+      const labels = [this.getOccupation.ess.year.toString()];
+      const series = [this.getOccupation.ess.percentHTFisSSV.toFixed(2)];
+      return this.lineChartOptions('Hard to Find due to Skill Shortage (%)', labels, series);
     },
   },
   methods: {
@@ -295,7 +367,7 @@ export default {
           const estimatePay = await axios.get(`http://api.lmiforall.org.uk/api/v1/ashe/estimatePay?soc=${occupation.soc}&coarse=false&filters=region%3A11`);
           const estimatePayByGender = await axios.get(`http://api.lmiforall.org.uk/api/v1/ashe/estimatePay?soc=${occupation.soc}&coarse=false&filters=region%3A11&breakdown=gender`);
           const estimatePayByStatus = await axios.get(`http://api.lmiforall.org.uk/api/v1/ashe/estimatePay?soc=${occupation.soc}&coarse=false&filters=region%3A11&breakdown=status`);
-          // const ess = await axios.get(`http://api.lmiforall.org.uk/api/v1/ess/region/11/${occupation.soc}?coarse=true`);
+          const ess = await axios.get(`http://api.lmiforall.org.uk/api/v1/ess/uk/${occupation.soc}?coarse=true`);
           const unempRate = await axios.get(`http://api.lmiforall.org.uk/api/v1/lfs/unemployment?soc=${occupation.soc}`);
           const unempRateByMale = await axios.get(`http://api.lmiforall.org.uk/api/v1/lfs/unemployment?soc=${occupation.soc}&filterBy=gender%3A1`);
           const unempRateByFemale = await axios.get(`http://api.lmiforall.org.uk/api/v1/lfs/unemployment?soc=${occupation.soc}&filterBy=gender%3A2`);
@@ -316,7 +388,7 @@ export default {
                 byStatus: estimatePayByStatus.data.series,
               },
             },
-            // ess: ess.data,
+            ess: ess.data,
             unemploymentRate: {
               overall: unempRate.data.years,
               byGender: {
@@ -347,9 +419,26 @@ export default {
     isCurrentPage(page) {
       return this.page === page;
     },
-    lineChartOptions(title, categories, series) {
+    lineChartOptions(title, labels, series) {
       return {
         options: {
+          plotOptions: {
+            radialBar: {
+              startAngle: -135,
+              endAngle: 135,
+              track: {
+                background: '#333',
+                startAngle: -135,
+                endAngle: 135,
+              },
+            },
+          },
+          noData: {
+            text: 'Insufficient data',
+            style: {
+              color: '#ff6347',
+            },
+          },
           chart: {
             toolbar: {
               show: false,
@@ -358,9 +447,9 @@ export default {
           title: {
             text: title,
             align: 'center',
-          },
-          xaxis: {
-            categories,
+            style: {
+              color: '#0af',
+            },
           },
           grid: {
             yaxis: {
@@ -369,6 +458,7 @@ export default {
               },
             },
           },
+          labels,
         },
         series,
       };
@@ -454,12 +544,22 @@ export default {
         .occupation {
           flex: 1;
           margin: 0;
-          padding: 0;
+          padding: 20px 0;
           list-style: none;
           overflow: hidden;
           .charts {
             display: flex;
             flex-flow: row wrap;
+            justify-content: space-evenly;
+            margin: 20px 0;
+            .cat {
+              display: flex;
+              flex-flow: row wrap;
+              justify-content: center;
+              &.cat4 .apexchart {
+                margin-bottom: 15px;
+              }
+            }
             .apexchart {
               margin: 0 4px;
               * {
@@ -473,8 +573,8 @@ export default {
                 border-radius: 4px;
               }
               .apexcharts-title-text {
-                fill: $text-blue;
                 transform: translateY(5px);
+                font-weight: 700 !important;
               }
               .apexcharts-yaxis text { fill: $text-blue; }
               .apexcharts-xaxis text { fill: $text-blue; }
@@ -498,6 +598,14 @@ export default {
               }
               .apexcharts-xaxis-tick, .apexcharts-xaxis line { stroke: $border-blue; }
               .apexcharts-legend-text { color: $text-blue !important; }
+              .apexcharts-datalabel-value {
+                fill: lighten($text-blue, 20%);
+                font-size: 1.4em !important;
+                font-weight: 700;
+              }
+              .apexcharts-radialbar-track .apexcharts-radialbar-area {
+                stroke: lighten($bg-blue, 4%);
+              }
             }
           }
           .no-result {
@@ -506,33 +614,13 @@ export default {
             font-size: 1.4em;
             text-align: center;
           }
-          li {
-            display: flex;
-            height: 200px;
-            position: relative;
-            align-items: center;
-            justify-content: center;
-            background-color: rgba($bg-blue, .4);
-            border: 1px solid $border-blue;
-            margin: 40px 0;
-            font-size: 4em;
-            font-weight: 300;
-            &:before {
-              content: "";
-              position: absolute;
-              top: 0;
-              bottom: 0;
-              width: 8px;
-              background-color: $border-blue;
-            }
-            &:nth-child(even) {
-              border-radius: 5px 0 0 5px;
-              &:before { right: 0; }
-            }
-            &:nth-child(odd) {
-              border-radius: 0 5px 5px 0;
-              &:before { left: 0; }
-            }
+          .title {
+            display: block;
+            padding: 5px;
+            background-color: rgba(darken($text-blue, 20%), .4);
+            font-size: 1.2em;
+            font-weight: 700;
+            text-align: center;
           }
         }
         .page-wrapper {
