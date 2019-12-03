@@ -26,9 +26,11 @@
                 <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedPayOverall"></apexchart>
                 <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedPayByGender"></apexchart>
                 <apexchart class="apexchart" width="400" type="bar" v-bind="readEstimatedPayByStatus"></apexchart>
+                <apexchart class="apexchart" width="400" type="line" v-bind="readEmploymentTrendByGender"></apexchart>
+                <apexchart class="apexchart" width="400" type="line" v-bind="readEmploymentTrendByStatus"></apexchart>
               </div>
             </div>
-            <div v-else-if="soc.length <= 0 && query.search.length > 0" class="occupation">
+            <div v-else-if="soc.length <= 0 && query.search" class="occupation">
               <div class="no-result">No results have been found matching your request!</div>
             </div>
             <div v-if="soc.length > 1" class="page-wrapper">
@@ -124,7 +126,7 @@ export default {
           series[0].data.push(data.hours);
         })
         .commit();
-      return this.lineChartOptions('Estimated Hours', categories, series);
+      return this.lineChartOptions('Estimated Hours (hrs)', categories, series);
     },
     readEstimatedHoursByGender() {
       const categories = [];
@@ -145,11 +147,11 @@ export default {
           });
         })
         .commit();
-      return this.lineChartOptions('Estimated Hours by Gender', categories, series);
+      return this.lineChartOptions('Estimated Hours by Gender (hrs)', categories, series);
     },
     readEstimatedHoursByStatus() {
       const categories = [];
-      const seriesName = ['Full-Time', 'Part-Time'];
+      const seriesName = ['Full-Time', 'Part-Time', 'Self-Employed'];
       const series = [];
       _.chain(this.getOccupation.ashe.estimateHours.byStatus)
         .orderBy('year', 'asc')
@@ -166,7 +168,7 @@ export default {
           });
         })
         .commit();
-      return this.lineChartOptions('Estimated Hours by Employment Status', categories, series);
+      return this.lineChartOptions('Estimated Hours by Employment Status (hrs)', categories, series);
     },
     readEstimatedPayOverall() {
       const categories = [];
@@ -185,7 +187,7 @@ export default {
           series[0].data.push(data.estpay);
         })
         .commit();
-      return this.lineChartOptions('Estimated Weekly Pay', categories, series);
+      return this.lineChartOptions('Estimated Weekly Pay (£)', categories, series);
     },
     readEstimatedPayByGender() {
       const categories = [];
@@ -206,11 +208,11 @@ export default {
           });
         })
         .commit();
-      return this.lineChartOptions('Estimated Weekly Pay by Gender', categories, series);
+      return this.lineChartOptions('Estimated Weekly Pay by Gender (£)', categories, series);
     },
     readEstimatedPayByStatus() {
       const categories = [];
-      const seriesName = ['Full-Time', 'Part-Time'];
+      const seriesName = ['Full-Time', 'Part-Time', 'Self-Employed'];
       const series = [];
       _.chain(this.getOccupation.ashe.estimatePay.byStatus)
         .orderBy('year', 'asc')
@@ -227,7 +229,49 @@ export default {
           });
         })
         .commit();
-      return this.lineChartOptions('Estimated Weekly Pay by Employment Status', categories, series);
+      return this.lineChartOptions('Estimated Weekly Pay by Employment Status (£)', categories, series);
+    },
+    readEmploymentTrendByGender() {
+      const categories = [];
+      const seriesName = ['Male', 'Female'];
+      const series = [];
+      _.chain(this.getOccupation.wfTrend.byGender)
+        .orderBy('year', 'asc')
+        .forEach((data, id) => {
+          categories.push(data.year);
+          _.forEach(data.breakdown, (s) => {
+            if (id === 0) {
+              series[s.code - 1] = {
+                name: seriesName[s.code - 1],
+                data: [],
+              };
+            }
+            series[s.code - 1].data.push(s.employment);
+          });
+        })
+        .commit();
+      return this.lineChartOptions('Employment Trend by Gender (employees)', categories, series);
+    },
+    readEmploymentTrendByStatus() {
+      const categories = [];
+      const seriesName = ['Full-Time', 'Part-Time', 'Self-Employed'];
+      const series = [];
+      _.chain(this.getOccupation.wfTrend.byStatus)
+        .orderBy('year', 'asc')
+        .forEach((data, id) => {
+          categories.push(data.year);
+          _.forEach(data.breakdown, (s) => {
+            if (id === 0) {
+              series[s.code - 1] = {
+                name: seriesName[s.code - 1],
+                data: [],
+              };
+            }
+            series[s.code - 1].data.push(s.employment);
+          });
+        })
+        .commit();
+      return this.lineChartOptions('Employment Trend by Status (employees)', categories, series);
     },
   },
   methods: {
@@ -242,55 +286,51 @@ export default {
       this.$store.commit('loadingStart');
       this.$store.commit('loadingMessage', { message: 'Loading occupations' });
       const soc = await axios.get(`http://api.lmiforall.org.uk/api/v1/soc/search?q=${this.query.search}`);
-      try {
-        this.soc = await Promise.all(_.chain(soc.data)
-          .map(async (occupation) => {
-            const annualChanges = await axios.get(`http://api.lmiforall.org.uk/api/v1/ashe/annualChanges?soc=${occupation.soc}&filters=region%3A11`);
-            const estimateHours = await axios.get(`http://api.lmiforall.org.uk/api/v1/ashe/estimateHours?soc=${occupation.soc}&coarse=false&filters=region%3A11`);
-            const estimateHoursByGender = await axios.get(`http://api.lmiforall.org.uk/api/v1/ashe/estimateHours?soc=${occupation.soc}&coarse=false&filters=region%3A11&breakdown=gender`);
-            const estimateHoursByStatus = await axios.get(`http://api.lmiforall.org.uk/api/v1/ashe/estimateHours?soc=${occupation.soc}&coarse=false&filters=region%3A11&breakdown=status`);
-            const estimatePay = await axios.get(`http://api.lmiforall.org.uk/api/v1/ashe/estimatePay?soc=${occupation.soc}&coarse=false&filters=region%3A11`);
-            const estimatePayByGender = await axios.get(`http://api.lmiforall.org.uk/api/v1/ashe/estimatePay?soc=${occupation.soc}&coarse=false&filters=region%3A11&breakdown=gender`);
-            const estimatePayByStatus = await axios.get(`http://api.lmiforall.org.uk/api/v1/ashe/estimatePay?soc=${occupation.soc}&coarse=false&filters=region%3A11&breakdown=status`);
-            const ess = await axios.get(`http://api.lmiforall.org.uk/api/v1/ess/region/11/${occupation.soc}?coarse=true`);
-            const unempRate = await axios.get(`http://api.lmiforall.org.uk/api/v1/lfs/unemployment?soc=${occupation.soc}`);
-            const unempRateByMale = await axios.get(`http://api.lmiforall.org.uk/api/v1/lfs/unemployment?soc=${occupation.soc}&filterBy=gender%3A1`);
-            const unempRateByFemale = await axios.get(`http://api.lmiforall.org.uk/api/v1/lfs/unemployment?soc=${occupation.soc}&filterBy=gender%3A2`);
-            const wfTrendStatus = await axios.get(`http://api.lmiforall.org.uk/api/v1/wf/predict/breakdown/status?soc=${occupation.soc}&minYear=2018`);
-            const wfTrendGender = await axios.get(`http://api.lmiforall.org.uk/api/v1/wf/predict/breakdown/gender?soc=${occupation.soc}&minYear=2018`);
-            return {
-              occupationTitle: occupation.title,
-              ashe: {
-                annualChanges: annualChanges.data.annual_changes,
-                estimateHours: {
-                  overall: estimateHours.data.series,
-                  byGender: estimateHoursByGender.data.series, // 1 male | 2 female
-                  byStatus: estimateHoursByStatus.data.series, // 1 ft | 2 pt
-                },
-                estimatePay: {
-                  overall: estimatePay.data.series,
-                  byGender: estimatePayByGender.data.series,
-                  byStatus: estimatePayByStatus.data.series,
-                },
+      this.soc = await Promise.all(_.chain(soc.data)
+        .map(async (occupation) => {
+          const annualChanges = await axios.get(`http://api.lmiforall.org.uk/api/v1/ashe/annualChanges?soc=${occupation.soc}&filters=region%3A11`);
+          const estimateHours = await axios.get(`http://api.lmiforall.org.uk/api/v1/ashe/estimateHours?soc=${occupation.soc}&coarse=false&filters=region%3A11`);
+          const estimateHoursByGender = await axios.get(`http://api.lmiforall.org.uk/api/v1/ashe/estimateHours?soc=${occupation.soc}&coarse=false&filters=region%3A11&breakdown=gender`);
+          const estimateHoursByStatus = await axios.get(`http://api.lmiforall.org.uk/api/v1/ashe/estimateHours?soc=${occupation.soc}&coarse=false&filters=region%3A11&breakdown=status`);
+          const estimatePay = await axios.get(`http://api.lmiforall.org.uk/api/v1/ashe/estimatePay?soc=${occupation.soc}&coarse=false&filters=region%3A11`);
+          const estimatePayByGender = await axios.get(`http://api.lmiforall.org.uk/api/v1/ashe/estimatePay?soc=${occupation.soc}&coarse=false&filters=region%3A11&breakdown=gender`);
+          const estimatePayByStatus = await axios.get(`http://api.lmiforall.org.uk/api/v1/ashe/estimatePay?soc=${occupation.soc}&coarse=false&filters=region%3A11&breakdown=status`);
+          // const ess = await axios.get(`http://api.lmiforall.org.uk/api/v1/ess/region/11/${occupation.soc}?coarse=true`);
+          const unempRate = await axios.get(`http://api.lmiforall.org.uk/api/v1/lfs/unemployment?soc=${occupation.soc}`);
+          const unempRateByMale = await axios.get(`http://api.lmiforall.org.uk/api/v1/lfs/unemployment?soc=${occupation.soc}&filterBy=gender%3A1`);
+          const unempRateByFemale = await axios.get(`http://api.lmiforall.org.uk/api/v1/lfs/unemployment?soc=${occupation.soc}&filterBy=gender%3A2`);
+          const wfTrendStatus = await axios.get(`http://api.lmiforall.org.uk/api/v1/wf/predict/breakdown/status?soc=${occupation.soc}&minYear=2018`);
+          const wfTrendGender = await axios.get(`http://api.lmiforall.org.uk/api/v1/wf/predict/breakdown/gender?soc=${occupation.soc}&minYear=2018`);
+          return {
+            occupationTitle: occupation.title,
+            ashe: {
+              annualChanges: annualChanges.data.annual_changes,
+              estimateHours: {
+                overall: estimateHours.data.series,
+                byGender: estimateHoursByGender.data.series, // 1 male | 2 female
+                byStatus: estimateHoursByStatus.data.series, // 1 ft | 2 pt
               },
-              ess: ess.data,
-              unemploymentRate: {
-                overall: unempRate.data.years,
-                byGender: {
-                  male: unempRateByMale.data.years,
-                  female: unempRateByFemale.data.years,
-                },
+              estimatePay: {
+                overall: estimatePay.data.series,
+                byGender: estimatePayByGender.data.series,
+                byStatus: estimatePayByStatus.data.series,
               },
-              wtfTrend: {
-                byStatus: wfTrendStatus.data.predictedEmployment,
-                byGender: wfTrendGender.data.predictedEmployment,
+            },
+            // ess: ess.data,
+            unemploymentRate: {
+              overall: unempRate.data.years,
+              byGender: {
+                male: unempRateByMale.data.years,
+                female: unempRateByFemale.data.years,
               },
-            };
-          })
-          .value());
-      } catch (e) {
-        return;
-      }
+            },
+            wfTrend: {
+              byStatus: wfTrendStatus.data.predictedEmployment,
+              byGender: wfTrendGender.data.predictedEmployment,
+            },
+          };
+        })
+        .value());
       console.log(this.soc);
       // End the loading process
       this.$store.commit('loadingSuccess');
@@ -338,6 +378,7 @@ export default {
     query: {
       deep: true,
       async handler() {
+        this.page = 0;
         await this.load();
       },
     },
